@@ -1,0 +1,51 @@
+---
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import Headline from '~/components/ui/Headline.astro';
+import { Icon } from 'astro-icon/components';
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline,
+  id,
+  isDark = false,
+  classes = {},
+  bg = await Astro.slots.render('bg'),
+} = Astro.props;
+
+// Define your tech stack here (easy to edit later)
+const techStack = [
+  { name: "Astro",         icon: "simple-icons:astro",       url: "https://astro.build" },
+  { name: "Tailwind CSS",  icon: "simple-icons:tailwindcss", url: "https://tailwindcss.com" },
+  { name: "GitHub",        icon: "simple-icons:github",      url: "https://github.com" },
+  { name: "Vite",          icon: "simple-icons:vite",        url: "https://vitejs.dev" },
+];
+---
+
+<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-7xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
+  <Headline title={title} subtitle={subtitle} tagline={tagline} classes={{ title: 'text-center' }} />
+
+    <div class="flex flex-wrap justify-center items-center py-8 -mx-4">
+    {techStack.map((item) => (
+      <div
+        class={`px-4 md:w-1/5 lg:w-1/6 flex flex-col items-center gap-3 
+                md:border-r md:last:border-none 
+                dark:md:border-slate-500 
+                motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade 
+                intersect-once intersect-quarter`}
+      >
+        <a
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="group flex flex-col items-center gap-3 opacity-70 grayscale transition-all duration-300 hover:opacity-100 hover:grayscale-0"
+        >
+          <Icon name={item.icon} class="w-16 h-16 md:w-20 md:h-20" />
+          <span class="text-sm font-medium text-muted dark:text-slate-400 group-hover:text-primary">
+            {item.name}
+          </span>
+        </a>
+      </div>
+    ))}
+  </div>
+</WidgetWrapper>

@@ -1,0 +1,152 @@
+---
+import Features2 from '~/components/widgets/Features2.astro';
+import Hero from '~/components/widgets/Hero.astro';
+import Steps2 from '~/components/widgets/Steps2.astro';
+import Steps from '~/components/widgets/Steps.astro';
+import TechStack from '~/components/widgets/TechStack.astro';
+import Guarantee from '~/components/widgets/Guarantee.astro';
+import Layout from '~/layouts/PageLayout.astro';
+
+const metadata = {
+  title: 'About us',
+};
+---
+
+<Layout metadata={metadata}>
+  <!-- Hero Widget ******************* -->
+
+  <Hero
+    tagline="About us"
+    video={{
+      src: '/videos/laptop-code.mp4',
+      type: 'video/mp4',
+    }}
+    poster="/videos/laptop.jpg"
+  >
+
+    <Fragment slot="title">
+      Next-Generation Static Architecture<br />
+      <span class="text-accent dark:text-white">Redefining Digital Standards</span>
+    </Fragment>
+
+    <Fragment slot="subtitle">
+      Rebirth Web Design is redefining digital standards with next-generation static architecture that's gaining traction in Bundaberg’s tech scene. With over a decade of hands-on coding expertise and AI-assisted workflows that accelerate prototyping and delivery, we build on Astro’s island rendering and Tailwind’s atomic utilities to create sites with exceptional performance, seamless interactivity, and stunning responsive design—elevating Core Web Vitals, accessibility, and edge delivery for modern brands.
+    </Fragment>
+  </Hero>
+
+<Steps2
+  title="Our Values"
+  subtitle={"At Rebirth Web Design, every decision is guided by lessons learned from past projects and a commitment to doing things better. We prioritize renewal—not just for client sites, but in how we work: lean, efficient, and always evolving with modern tools like Astro, Tailwind, and AI assistance to accelerate delivery without sacrificing quality or creativity.\n\nWe believe in building long-term trust over quick wins, focusing on mobile-first performance, accessibility, and sustainable practices that reduce digital waste. Working remotely (often from Codespaces or even mobile) gives us flexibility and keeps overhead low, allowing us to deliver standout static sites with innovation at the core and genuine care in every detail."}
+  items={[
+    {
+      title: 'Renewal & Innovation',
+      description:
+        'We turn lessons from outdated approaches into opportunities for fresh, high-performance static sites—embracing cutting-edge tools and AI to prototype faster and innovate smarter.',
+    },
+    {
+      title: 'Efficiency Without Burnout',
+      description:
+        'AI-assisted workflows, cloud-based mobility, and streamlined processes let us deliver prototypes in days while maintaining creative energy and work-life balance.',
+    },
+    {
+      title: 'Trust & Sustainability',
+      description:
+        'We build relationships on transparency and results, prioritizing eco-friendly hosting, accessible design, and long-term maintainability over short-term complexity.',
+    },
+  ]}
+/>
+  
+  <Steps
+    id="workflow"
+    title="From Ideation to Iteration"
+    items={[
+      {
+        title: 'Step 1: Architecture',
+        description:
+          'A clean, modular project structure built for maintainability.',
+        icon: 'tabler:cpu',
+      },
+      {
+        title: 'Step 2: Version Control',
+        description:
+          'Every change tracked and reversible using GitHub.',
+        icon: 'tabler:git-branch',
+      },
+      {
+        title: 'Step 3: Cloud Deployment',
+        description:
+          'Automatic global deployment via Cloudflare.',
+        icon: 'tabler:cloud-upload',
+      },
+      {
+        title: 'Live',
+        icon: 'tabler:check',
+      },
+    ]}
+    image={{
+      src: '~/assets/images/feat4.webp',
+      alt: 'Steps image',
+    }}
+  />
+
+
+
+  <!-- TechStack Widget ****************** -->
+
+  <TechStack
+  title="Our Modern Tech Stack"
+  tagline="Powered by industry-leading tools for performance and innovation"
+/>
+
+  <Guarantee
+  tagline="From Our Founder"
+>
+
+  <Fragment slot="title">
+    Our Guarantee<br />
+  </Fragment>
+
+  <Fragment slot="subtitle">
+    As the founder of Rebirth Web Design, servicing Bundaberg, Hervey Bay, Maryborough, and the wider Wide Bay-Burnett region with expert website design and web design services, I've worked tirelessly over the years to develop a product that represents the platinum industry standard in modern web development. This unwavering guarantee reflects that commitment: your new site will load blazingly fast, look stunning on every device, and perfectly embody your vision—or we'll refine it at no additional cost until it does. Renewed from hard-learned lessons in past ventures, our process harnesses cutting-edge tools like Astro and Tailwind CSS to deliver high-performance static websites that far surpass outdated, bloated systems. We build every project mobile-first, fully accessible, and optimised for Lighthouse scores over 90 from launch, ensuring standout online success for local businesses across the Wide Bay region. If you're an innovator in Bundaberg, Hervey Bay, Maryborough, or beyond ready to elevate your digital presence, we're dedicated to earning your trust through transparent collaboration, rapid prototypes, and results that set the benchmark—guaranteed.
+  </Fragment>
+
+  <!-- Signature added after the main paragraph -->
+  <Fragment slot="content">
+    <div class="mt-12 text-center">
+      <p class="font-comforter text-6xl md:text-7xl text-white leading-none">
+        Alex Harris
+      </p>
+      <p class="mt-4 text-base text-secondary dark:text-blue-200 font-bold tracking-wide uppercase">
+        Alex Harris - Founder and Creative Director
+      </p>
+    </div>
+  </Fragment>
+
+</Guarantee>
+
+  
+
+  <!-- Features2 Widget ************** -->
+
+  <Features2
+    title="Technical Support"
+    tagline="Contact us"
+    columns={2}
+    items={[
+      {
+        title: 'Chat with us',
+        description:
+          'Ready for live chat support on technical issues, quick questions, error resolutions, or ongoing project guidance Monday through Friday, from 9:00 AM to 5:00 PM Australian Eastern Standard Time (AEST).',
+        icon: 'tabler:messages',
+        href: '/contact',
+      },
+      {
+        title: 'Call us',
+        description:
+          'Available for phone-based technical support, troubleshooting assistance, and in-depth consultations Monday through Friday, from 9:00 AM to 5:00 PM Australian Eastern Standard Time (AEST).',
+        icon: 'tabler:headset',
+        href: 'tel:0488162040',
+      },
+    ]}
+  />
+</Layout>

@@ -1,0 +1,79 @@
+---
+publishDate: {{PUBLISH_DATE}}  # e.g., 2026-01-15T00:00:00Z
+title: "{{BLOG_TITLE}}"  # Enter the main title of your blog post here
+excerpt: "{{BLOG_EXCERPT}}"  # Short summary (1-2 sentences) for SEO and previews
+image: {{FEATURED_IMAGE_URL}}  # Unsplash or custom URL, optimized for 1800x1012 or similar
+author: "Alex Harris"
+category: {{CATEGORY}}  # e.g., Growth, Tools, Design, Local Business
+
+# Choose one or more relevant tags from the list below
+# - Bundaberg Business
+# - Local SEO
+# - Web Performance
+# - SMB1001
+# - Scaling
+# - Tools
+# - AI Tools
+# - Astro JS
+# - Tailwind CSS
+# - Static Sites
+# - Mobile First
+# - Accessibility
+# - Cybersecurity
+# - Front-End
+# - Resources
+# - Design Inspiration
+# - Small Business
+# - Entrepreneurship
+# - 2026 Trends
+
+tags:
+  - {{TAG_1}}
+  - {{TAG_2}}
+  - {{TAG_3}}
+  - {{TAG_4}}  # Add or remove tags as needed; choose from suggested list above
+
+metadata:
+  canonical: https://rebirthwebdesign.com.au/{{URL_SLUG}}
+---
+
+{{INTRODUCTION_PARAGRAPH}}
+Write 2-4 engaging opening paragraphs here. Hook the reader with local relevance (Bundaberg/small business context if applicable), recent stats, or a relatable problem. Keep tone friendly, helpful, and optimistic.
+
+## {{SECTION_1_HEADING}}
+
+{{SECTION_1_CONTENT}}
+Explain the first main topic in detail. Use short paragraphs, bold key points, and include:
+- Practical tips
+- 2026-relevant data (cite sources if possible)
+- Tools or strategies we recommend (Astro, Tailwind, etc.)
+
+* **Bullet Point Example:** Highlight benefits or steps.
+* **Another Point:** Keep lists actionable.
+
+## {{SECTION_2_HEADING}}
+
+{{SECTION_2_CONTENT}}
+Continue with the next major section. Add subheadings (###) if needed for clarity.
+
+### {{SUBSECTION_HEADING}} (optional)
+{{SUBSECTION_CONTENT}}
+
+## {{SECTION_3_HEADING}} (optional)
+
+{{SECTION_3_CONTENT}}
+Add more sections as needed to fully cover the topic.
+
+### {{FINAL_SECTION_CHECKLIST_OR_SUMMARY_HEADING}}
+
+{{CHECKLIST_INTRO}}
+End with a practical takeaway:
+
+* **Checklist Item 1:** Actionable step for readers
+* **Checklist Item 2:** Another clear action
+* **Checklist Item 3:** Final tip or reminder
+
+**Call to Action Closing Paragraph**
+Wrap up with an inspiring close. Mention how Rebirth Web Design can help (Astro + Tailwind fast sites, local focus, etc.). Invite readers to get in touch or share the post.
+
+**Ready to [relevant action]?** At Rebirth Web Design, we specialize in [brief service highlight]. Let’s make 2026 your best year online.
