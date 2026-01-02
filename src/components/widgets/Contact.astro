@@ -2,6 +2,7 @@
 import FormContainer from '~/components/ui/Form.astro';
 import Headline from '~/components/ui/Headline.astro';
 import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import SuccessModal from '~/components/ui/SuccessModal.astro';
 import type { Contact as Props } from '~/types';
 
 const {
@@ -37,4 +38,5 @@ const {
       </div>
     )
   }
+  <SuccessModal />
 </WidgetWrapper>

@@ -1,0 +1,75 @@
+---
+// Success Modal Component for Contact Form
+---
+
+<div id="success-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+  <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-md w-full p-8 transform transition-all">
+    <!-- Success Icon -->
+    <div class="flex justify-center mb-4">
+      <div class="rounded-full bg-green-100 dark:bg-green-900 p-3">
+        <svg class="w-12 h-12 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <h3 class="text-2xl font-bold text-center mb-2 dark:text-white">Message Sent!</h3>
+    <p class="text-center text-gray-600 dark:text-gray-400 mb-6">
+      Thank you for reaching out. We've received your message and will get back to you within 24 hours.
+    </p>
+
+    <!-- Close Button -->
+    <button
+      id="close-modal-btn"
+      class="w-full py-3 px-4 bg-primary hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200"
+    >
+      Close
+    </button>
+  </div>
+</div>
+
+<script>
+  function setupSuccessModal() {
+    const modal = document.getElementById('success-modal');
+    const closeBtn = document.getElementById('close-modal-btn');
+
+    if (!modal || !closeBtn) return;
+
+    // Close modal function
+    const closeModal = () => {
+      modal?.classList.add('hidden');
+      document.body.style.overflow = ''; // Re-enable scrolling
+    };
+
+    // Close button click
+    closeBtn.addEventListener('click', closeModal);
+
+    // Close on outside click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal?.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+
+    // Export function to show modal
+    (window as any).showSuccessModal = () => {
+      modal?.classList.remove('hidden');
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    };
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupSuccessModal);
+  } else {
+    setupSuccessModal();
+  }
+</script>

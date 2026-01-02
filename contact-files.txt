@@ -1,0 +1,393 @@
+================================================================================
+CONTACT FORM EMAIL SENDING - FILE REFERENCE
+================================================================================
+
+This document lists all files involved in the contact form email sending process
+with their locations and relevant code snippets.
+
+================================================================================
+1. CONTACT PAGE - FORM CONFIGURATION
+================================================================================
+
+Filename: contact.astro
+Location: /Users/alex/Desktop/Websites/rebirthwd/src/pages/contact.astro
+
+Relevant Code:
+---
+import ContactUs from '~/components/widgets/Contact.astro';
+
+<ContactUs
+  id="form"
+  title="Drop us a message today!"
+  inputs={[
+    {
+      type: 'text',
+      name: 'name',
+      label: 'Name',
+    },
+    {
+      type: 'email',
+      name: 'email',
+      label: 'Email',
+    },
+  ]}
+  textarea={{
+    label: 'Message',
+  }}
+  disclaimer={{
+    label: 'By submitting this contact form, you acknowledge and agree to the collection of your personal information.',
+  }}
+  description="Our support team typically responds within 24 business hours."
+/>
+
+================================================================================
+2. CONTACT WIDGET - WRAPPER COMPONENT
+================================================================================
+
+Filename: Contact.astro
+Location: /Users/alex/Desktop/Websites/rebirthwd/src/components/widgets/Contact.astro
+
+Relevant Code:
+---
+import FormContainer from '~/components/ui/Form.astro';
+import SuccessModal from '~/components/ui/SuccessModal.astro';
+
+<WidgetWrapper id={id} isDark={isDark}>
+  <Headline title={title} subtitle={subtitle} tagline={tagline} />
+
+  <div class="flex flex-col max-w-xl mx-auto rounded-lg backdrop-blur border">
+    <FormContainer
+      inputs={inputs}
+      textarea={textarea}
+      disclaimer={disclaimer}
+      button={button}
+      description={description}
+    />
+  </div>
+
+  <SuccessModal />
+</WidgetWrapper>
+
+================================================================================
+3. FORM COMPONENT - CLIENT-SIDE VALIDATION & SUBMISSION
+================================================================================
+
+Filename: Form.astro
+Location: /Users/alex/Desktop/Websites/rebirthwd/src/components/ui/Form.astro
+
+Relevant Code (Key Sections):
+
+FORM HTML:
+<form id="contact-form" method="post" action="" novalidate>
+  <!-- Input fields with error containers -->
+  <div class="error-message hidden text-red-600 dark:text-red-400" data-error-for={name}></div>
+  <input type={type} name={name} id={name} required />
+
+  <!-- Turnstile widget -->
+  {turnstileEnabled && turnstileSiteKey && (
+    <div class="mt-6">
+      <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="auto"></div>
+    </div>
+  )}
+</form>
+
+VALIDATION & SUBMISSION SCRIPT:
+<script is:inline>
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    clearErrors();
+
+    // Validate all required fields
+    inputs.forEach(input => {
+      if (fieldType === 'email' && !isValidEmail(fieldValue)) {
+        showError(fieldId, 'Please enter a valid email address');
+        isValid = false;
+      }
+    });
+
+    if (isValid) {
+      const formData = new FormData(form);
+      const formBody = new URLSearchParams(formData);
+
+      // Try API endpoint first, then fallback to Pages Function
+      const endpoints = ['/api/send-email', '/send-email'];
+
+      for (const endpoint of endpoints) {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: formBody
+        });
+
+        if (response.ok) {
+          window.showSuccessModal();
+          form.reset();
+          break;
+        }
+      }
+    }
+  });
+</script>
+
+================================================================================
+4. SUCCESS MODAL - SUCCESS FEEDBACK
+================================================================================
+
+Filename: SuccessModal.astro
+Location: /Users/alex/Desktop/Websites/rebirthwd/src/components/ui/SuccessModal.astro
+
+Relevant Code:
+<div id="success-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+  <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-md w-full p-8">
+    <h3 class="text-2xl font-bold text-center mb-2">Message Sent!</h3>
+    <p class="text-center text-gray-600 dark:text-gray-400 mb-6">
+      Thank you for reaching out. We've received your message and will get back to you within 24 hours.
+    </p>
+    <button id="close-modal-btn">Close</button>
+  </div>
+</div>
+
+<script>
+  (window as any).showSuccessModal = () => {
+    modal?.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  };
+</script>
+
+================================================================================
+5. API ENDPOINT - PRIMARY EMAIL HANDLER (ASTRO)
+================================================================================
+
+Filename: send-email.ts
+Location: /Users/alex/Desktop/Websites/rebirthwd/src/pages/api/send-email.ts
+
+Relevant Code:
+import type { APIRoute } from 'astro';
+import { Resend } from 'resend';
+
+export const prerender = false;  // Ensure dynamic
+
+export const POST: APIRoute = async (context) => {
+  const { request, locals } = context;
+
+  // Cloudflare env access (works local with platformProxy and prod)
+  const runtime = locals.runtime;
+  const RESEND_API_KEY = runtime.env.RESEND_API_KEY as string | undefined;
+  const CONTACT_EMAIL = runtime.env.CONTACT_EMAIL as string | undefined;
+  const TURNSTILE_SECRET_KEY = runtime.env.TURNSTILE_SECRET_KEY as string | undefined;
+
+  // FormData parsing with fallback
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch (error) {
+    const text = await request.text();
+    formData = new FormData();
+    new URLSearchParams(text).forEach((value, key) => formData.append(key, value));
+  }
+
+  const name = formData.get('name') as string | null;
+  const email = formData.get('email') as string | null;
+  const message = formData.get('message') as string | null;
+  const turnstileToken = formData.get('cf-turnstile-response') as string | null;
+
+  // Turnstile verification
+  if (TURNSTILE_SECRET_KEY) {
+    const verifyResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        secret: TURNSTILE_SECRET_KEY,
+        response: turnstileToken,
+        remoteip: request.headers.get('CF-Connecting-IP') || '',
+      }),
+    });
+
+    const verifyResult = await verifyResponse.json() as { success: boolean };
+    if (!verifyResult.success) {
+      return new Response(JSON.stringify({ error: 'Turnstile verification failed' }), {
+        status: 403,
+      });
+    }
+  }
+
+  // Send email via Resend
+  const resend = new Resend(RESEND_API_KEY);
+
+  const { error } = await resend.emails.send({
+    from: 'Contact Form <onboarding@resend.dev>', // TODO: Replace with verified domain
+    to: [CONTACT_EMAIL],
+    subject: `New contact form message from ${name}`,
+    reply_to: email,
+    html: `
+      <p><strong>From:</strong> ${name} (${email})</p>
+      <p><strong>Message:</strong></p>
+      <p>${message.replace(/\n/g, '<br>')}</p>
+    `,
+  });
+
+  if (error) {
+    return new Response(JSON.stringify({ error: 'Failed to send email' }), {
+      status: 500,
+    });
+  }
+
+  return new Response(JSON.stringify({ success: true }), {
+    status: 200,
+  });
+};
+
+================================================================================
+6. CLOUDFLARE PAGES FUNCTION - FALLBACK EMAIL HANDLER
+================================================================================
+
+Filename: send-email.js
+Location: /Users/alex/Desktop/Websites/rebirthwd/functions/send-email.js
+
+Relevant Code:
+import { Resend } from 'resend';
+
+export const onRequestPost = async ({ request, env }) => {
+  const resend = new Resend(env.RESEND_API_KEY);
+
+  const formData = await request.formData();
+  const name = formData.get('name');
+  const email = formData.get('email');
+  const message = formData.get('message');
+  const turnstileToken = formData.get('cf-turnstile-response');
+
+  // Verify Turnstile token
+  const turnstileVerify = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      secret: env.TURNSTILE_SECRET_KEY,
+      response: turnstileToken,
+      remoteip: request.headers.get('CF-Connecting-IP') || '',
+    }),
+  });
+
+  const turnstileResult = await turnstileVerify.json();
+  if (!turnstileResult.success) {
+    return new Response('Turnstile verification failed', { status: 403 });
+  }
+
+  // Send email
+  const { error } = await resend.emails.send({
+    from: 'Contact Form <onboarding@resend.dev>',
+    to: [env.CONTACT_EMAIL],
+    subject: `New message from ${name}`,
+    reply_to: email,
+    html: `
+      <p><strong>From:</strong> ${name} (${email})</p>
+      <p><strong>Message:</strong></p>
+      <p>${message.replace(/\n/g, '<br>')}</p>
+    `,
+  });
+
+  if (error) {
+    return new Response('Email failed', { status: 500 });
+  }
+
+  return new Response(JSON.stringify({ success: true }), { status: 200 });
+};
+
+================================================================================
+7. ASTRO CONFIGURATION - CLOUDFLARE ADAPTER
+================================================================================
+
+Filename: astro.config.ts
+Location: /Users/alex/Desktop/Websites/rebirthwd/astro.config.ts
+
+Relevant Code:
+import { defineConfig } from 'astro/config';
+import cloudflare from '@astrojs/cloudflare';
+
+export default defineConfig({
+  adapter: cloudflare({
+    platformProxy: {
+      enabled: true,  // Enables Cloudflare runtime in local dev
+    },
+    imageService: 'compile',
+  }),
+
+  integrations: [
+    tailwind({ applyBaseStyles: false }),
+    sitemap(),
+    mdx(),
+    icon(),
+    compress(),
+    astrowind({ config: './src/config.yaml' }),
+  ],
+});
+
+================================================================================
+8. SITE CONFIGURATION - TURNSTILE SETTINGS
+================================================================================
+
+Filename: config.yaml
+Location: /Users/alex/Desktop/Websites/rebirthwd/src/config.yaml
+
+Relevant Code:
+turnstile:
+  enabled: true
+  siteKey: '0x4AAAAAACKOMomcie5cCyHQ'
+
+================================================================================
+9. ENVIRONMENT VARIABLES - LOCAL DEVELOPMENT (CLOUDFLARE)
+================================================================================
+
+Filename: .dev.vars
+Location: /Users/alex/Desktop/Websites/rebirthwd/.dev.vars
+
+Full Contents:
+RESEND_API_KEY=re_TPB2NeF2_91jLjUJ96h8fh4toh74KYfM2
+CONTACT_EMAIL=alexharris0079@gmail.com
+TURNSTILE_SECRET_KEY=0x4AAAAAACKOMlsANeJ58_PPR4xCbXg8s7I
+
+Note: This file is used by Cloudflare's local runtime (platformProxy)
+
+================================================================================
+10. ENVIRONMENT VARIABLES - GENERAL ASTRO
+================================================================================
+
+Filename: .env
+Location: /Users/alex/Desktop/Websites/rebirthwd/.env
+
+Full Contents:
+# Cloudflare Turnstile Secret Key
+TURNSTILE_SECRET_KEY=0x4AAAAAACKOMlsANeJ58_PPR4xCbXg8s7I
+
+RESEND_API_KEY=re_TPB2NeF2_91jLjUJ96h8fh4toh74KYfM2
+CONTACT_EMAIL=alexharris0079@gmail.com
+
+Note: This file is for general Astro environment variables
+
+================================================================================
+EMAIL FLOW SUMMARY
+================================================================================
+
+1. User fills out form on contact.astro page
+2. Form.astro validates input client-side (email format, required fields)
+3. Form.astro submits via fetch to /api/send-email endpoint
+4. send-email.ts (API route) receives the POST request
+5. send-email.ts verifies Turnstile token with Cloudflare
+6. send-email.ts uses Resend API to send email
+7. Email sent from: onboarding@resend.dev
+8. Email sent to: alexharris0079@gmail.com
+9. On success: SuccessModal.astro shows confirmation
+10. Fallback: If API route fails, tries /send-email (Pages Function)
+
+================================================================================
+KNOWN ISSUE
+================================================================================
+
+Current sender: onboarding@resend.dev
+Problem: This is a test-only sender with poor deliverability to Gmail/Outlook
+Solution: Add verified domain to Resend account and update 'from' field
+
+Email logs location: Check Resend dashboard at resend.com/emails
+
+================================================================================

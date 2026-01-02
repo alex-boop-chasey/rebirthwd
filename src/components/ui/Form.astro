@@ -6,9 +6,11 @@ import { TURNSTILE } from 'astrowind:config';
 const { inputs, textarea, disclaimer, button = 'Contact us', description = '' } = Astro.props;
 const turnstileEnabled = TURNSTILE?.enabled;
 const turnstileSiteKey = TURNSTILE?.siteKey;
+
+console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
 ---
 
-<form>
+<form id="contact-form" method="post" action="" novalidate>
   {
     inputs &&
       inputs.map(
@@ -20,12 +22,14 @@ const turnstileSiteKey = TURNSTILE?.siteKey;
                   {label}
                 </label>
               )}
+              <div class="error-message hidden text-red-600 dark:text-red-400 text-sm mt-1 mb-2" data-error-for={name}></div>
               <input
                 type={type}
                 name={name}
                 id={name}
                 autocomplete={autocomplete}
                 placeholder={placeholder}
+                required
                 class="py-3 px-4 block w-full text-md rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900"
               />
             </div>
@@ -35,15 +39,17 @@ const turnstileSiteKey = TURNSTILE?.siteKey;
 
   {
     textarea && (
-      <div>
+      <div class="mb-6">
         <label for="textarea" class="block text-sm font-medium">
           {textarea.label}
         </label>
+        <div class="error-message hidden text-red-600 dark:text-red-400 text-sm mt-1 mb-2" data-error-for="textarea"></div>
         <textarea
           id="textarea"
           name={textarea.name ? textarea.name : 'message'}
           rows={textarea.rows ? textarea.rows : 4}
           placeholder={textarea.placeholder}
+          required
           class="py-3 px-4 block w-full text-md rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900"
         />
       </div>
@@ -52,19 +58,23 @@ const turnstileSiteKey = TURNSTILE?.siteKey;
 
   {
     disclaimer && (
-      <div class="mt-3 flex items-start">
-        <div class="flex mt-0.5">
-          <input
-            id="disclaimer"
-            name="disclaimer"
-            type="checkbox"
-            class="cursor-pointer mt-1 py-3 px-4 block w-full text-md rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900"
-          />
-        </div>
-        <div class="ml-3">
-          <label for="disclaimer" class="cursor-pointer select-none text-sm text-gray-600 dark:text-gray-400">
-            {disclaimer.label}
-          </label>
+      <div class="mt-3">
+        <div class="error-message hidden text-red-600 dark:text-red-400 text-sm mb-2" data-error-for="disclaimer"></div>
+        <div class="flex items-start">
+          <div class="flex mt-0.5">
+            <input
+              id="disclaimer"
+              name="disclaimer"
+              type="checkbox"
+              required
+              class="cursor-pointer mt-1 py-3 px-4 block w-full text-md rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900"
+            />
+          </div>
+          <div class="ml-3">
+            <label for="disclaimer" class="cursor-pointer select-none text-sm text-gray-600 dark:text-gray-400">
+              {disclaimer.label}
+            </label>
+          </div>
         </div>
       </div>
     )
@@ -102,3 +112,208 @@ const turnstileSiteKey = TURNSTILE?.siteKey;
     <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   )
 }
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('contact-form');
+    if (!form) {
+      console.error('Contact form not found');
+      return;
+    }
+    console.log('Contact form initialized');
+
+    // Clear all error messages
+    function clearErrors() {
+      const errorMessages = form.querySelectorAll('.error-message');
+      errorMessages.forEach(msg => {
+        msg.classList.add('hidden');
+        msg.textContent = '';
+      });
+
+      // Remove error styling from inputs
+      const inputs = form.querySelectorAll('input, textarea');
+      inputs.forEach(input => {
+        input.classList.remove('border-red-500', 'dark:border-red-500');
+      });
+    }
+
+    // Show error message for a specific field
+    function showError(fieldName, message) {
+      const errorDiv = form.querySelector(`[data-error-for="${fieldName}"]`);
+      const field = form.querySelector(`#${fieldName}`) || form.querySelector(`[name="${fieldName}"]`);
+
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+      }
+
+      if (field) {
+        field.classList.add('border-red-500', 'dark:border-red-500');
+        field.focus();
+      }
+    }
+
+    // Email validation regex
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    // Validate form on submit
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      console.log('Form submit intercepted');
+      clearErrors();
+
+      let isValid = true;
+      let firstErrorField = null;
+
+      // Get all form inputs
+      const inputs = form.querySelectorAll('input[required], textarea[required]');
+
+      inputs.forEach(input => {
+        const fieldName = input.name;
+        const fieldId = input.id;
+        const fieldType = input.type;
+        const fieldValue = input.value.trim();
+
+        // Check if field is empty
+        if (fieldType === 'checkbox') {
+          if (!input.checked) {
+            showError(fieldId, 'Please check this box to continue');
+            if (!firstErrorField) firstErrorField = input;
+            isValid = false;
+          }
+        } else if (fieldValue === '') {
+          const label = form.querySelector(`label[for="${fieldId}"]`)?.textContent || 'This field';
+          showError(fieldId, `${label} is required`);
+          if (!firstErrorField) firstErrorField = input;
+          isValid = false;
+        }
+        // Check email validity
+        else if (fieldType === 'email' && !isValidEmail(fieldValue)) {
+          showError(fieldId, 'Please enter a valid email address (e.g., alex@gmail.com)');
+          if (!firstErrorField) firstErrorField = input;
+          isValid = false;
+        }
+      });
+
+      // If validation passes, submit to API
+      if (isValid) {
+        console.log('Validation passed, submitting form');
+
+        // Show loading state
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton?.textContent;
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.textContent = 'Sending...';
+        }
+
+        // Get form data
+        const formData = new FormData(form);
+        const formBody = new URLSearchParams(formData);
+
+        // Helper to show visible error on the form
+        function showFormError(message) {
+          // Remove any old error
+          const oldError = form.querySelector('#form-general-error');
+          if (oldError) oldError.remove();
+
+          const errorDiv = document.createElement('div');
+          errorDiv.id = 'form-general-error';
+          errorDiv.className = 'text-red-600 dark:text-red-400 text-sm mt-4 text-center font-medium';
+          errorDiv.textContent = message;
+
+          // Insert above the submit button
+          const submitButton = form.querySelector('button[type="submit"]');
+          if (submitButton && submitButton.parentNode) {
+            submitButton.parentNode.insertBefore(errorDiv, submitButton);
+          }
+        }
+
+        let submitted = false;
+
+        // Submit to API with robust error handling
+        (async function() {
+          try {
+            console.log('Submitting form to /api/send-email');
+            const response = await fetch('/api/send-email', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: formBody,
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+              console.log('Form submitted successfully:', result);
+
+              // Success - show modal and reset form
+              if (window.showSuccessModal) {
+                window.showSuccessModal();
+              } else {
+                alert('Thank you! Your message has been sent successfully.');
+              }
+              form.reset();
+              clearErrors();
+              submitted = true;
+            } else {
+              console.error('Form submission failed:', {
+                status: response.status,
+                statusText: response.statusText,
+                error: result.error || 'Unknown server error',
+                fullResponse: result,
+              });
+              showFormError('Sorry, something went wrong. Please try again later or email us directly at hello@rebirthwebdesign.com.au');
+            }
+          } catch (networkError) {
+            console.error('Network/fetch error during form submission:', {
+              message: networkError.message,
+              name: networkError.name,
+              stack: networkError.stack,
+            });
+            showFormError('Connection failed. Check your internet and try again.');
+          }
+
+          // Reset button state
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+          }
+        })();
+      } else {
+        console.log('Validation failed');
+        if (firstErrorField) {
+          firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    });
+
+    // Clear error on input
+    const allInputs = form.querySelectorAll('input, textarea');
+    allInputs.forEach(input => {
+      input.addEventListener('input', function() {
+        const fieldId = this.id;
+        const errorDiv = form.querySelector(`[data-error-for="${fieldId}"]`);
+        if (errorDiv && !errorDiv.classList.contains('hidden')) {
+          errorDiv.classList.add('hidden');
+          this.classList.remove('border-red-500', 'dark:border-red-500');
+        }
+      });
+
+      // For checkboxes, listen to change event
+      if (input.type === 'checkbox') {
+        input.addEventListener('change', function() {
+          const fieldId = this.id;
+          const errorDiv = form.querySelector(`[data-error-for="${fieldId}"]`);
+          if (errorDiv && !errorDiv.classList.contains('hidden')) {
+            errorDiv.classList.add('hidden');
+          }
+        });
+      }
+    });
+  });
+</script>
