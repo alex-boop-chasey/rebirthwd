@@ -57,7 +57,7 @@ const config = {
     6016, // 6K
   ],
 
-  formats: ['image/webp'],
+  formats: ['avif', 'webp'],
 };
 
 const computeHeight = (width: number, aspectRatio: number) => {

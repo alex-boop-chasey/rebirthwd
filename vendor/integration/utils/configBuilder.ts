@@ -11,6 +11,7 @@ export type Config = {
   };
   ui?: unknown;
   analytics?: unknown;
+  turnstile?: unknown;
 };
 
 export interface SiteConfig {
@@ -80,6 +81,11 @@ export interface AnalyticsConfig {
 
 export interface UIConfig {
   theme: string;
+}
+
+export interface TurnstileConfig {
+  enabled: boolean;
+  siteKey?: string;
 }
 
 const DEFAULT_SITE_NAME = 'Website';
@@ -193,6 +199,15 @@ const getAnalytics = (config: Config) => {
   return merge({}, _default, config?.analytics ?? {}) as AnalyticsConfig;
 };
 
+const getTurnstile = (config: Config) => {
+  const _default = {
+    enabled: false,
+    siteKey: undefined,
+  };
+
+  return merge({}, _default, config?.turnstile ?? {}) as TurnstileConfig;
+};
+
 export default (config: Config) => ({
   SITE: getSite(config),
   I18N: getI18N(config),
@@ -200,4 +215,5 @@ export default (config: Config) => ({
   APP_BLOG: getAppBlog(config),
   UI: getUI(config),
   ANALYTICS: getAnalytics(config),
+  TURNSTILE: getTurnstile(config),
 });

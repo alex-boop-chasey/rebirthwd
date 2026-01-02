@@ -1,5 +1,5 @@
 site:
-  name: ReBirthWebDesign
+  name: rebirthWebDesign
   site: 'https://astrowind.vercel.app'
   base: '/'
   trailingSlash: false
@@ -9,14 +9,14 @@ site:
 # Default SEO metadata
 metadata:
   title:
-    default: ReBirthWebDesign
-    template: '%s — ReBirthWebDesign'
+    default: rebirthWebDesign
+    template: '%s — rebirthWebDesign'
   description: "\U0001F680 Suitable for Startups, Small Business, Sass Websites, Professional Portfolios, Marketing Websites, Landing Pages & Blogs."
   robots:
     index: true
     follow: true
   openGraph:
-    site_name: ReBirthWebDesign
+    site_name: rebirthWebDesign
     images:
       - url: '~/assets/images/default.png'
         width: 1200
@@ -70,3 +70,7 @@ analytics:
 
 ui:
   theme: 'system' # Values: "system" | "light" | "dark" | "light:only" | "dark:only"
+
+turnstile:
+  enabled: true
+  siteKey: '0x4AAAAAAAxxxxxxxxxxxxxxxxx' # Replace with your Cloudflare Turnstile site key

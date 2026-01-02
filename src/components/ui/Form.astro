@@ -1,8 +1,11 @@
 ---
 import type { Form as Props } from '~/types';
 import Button from '~/components/ui/Button.astro';
+import { TURNSTILE } from 'astrowind:config';
 
 const { inputs, textarea, disclaimer, button = 'Contact us', description = '' } = Astro.props;
+const turnstileEnabled = TURNSTILE?.enabled;
+const turnstileSiteKey = TURNSTILE?.siteKey;
 ---
 
 <form>
@@ -68,6 +71,14 @@ const { inputs, textarea, disclaimer, button = 'Contact us', description = '' } 
   }
 
   {
+    turnstileEnabled && turnstileSiteKey && (
+      <div class="mt-6">
+        <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="auto"></div>
+      </div>
+    )
+  }
+
+  {
     button && (
       <div class="mt-10 grid">
         <Button variant="primary" type="submit">
@@ -85,3 +96,9 @@ const { inputs, textarea, disclaimer, button = 'Contact us', description = '' } 
     )
   }
 </form>
+
+{
+  turnstileEnabled && turnstileSiteKey && (
+    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  )
+}

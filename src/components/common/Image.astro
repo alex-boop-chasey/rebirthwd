@@ -40,15 +40,19 @@ if (!props.decoding) {
 const _image = await findImage(props.src);
 
 let image: ImageType | undefined = undefined;
+let avifImage: ImageType | undefined = undefined;
+let webpImage: ImageType | undefined = undefined;
 
-if (
-  typeof _image === 'string' &&
-  (_image.startsWith('http://') || _image.startsWith('https://')) &&
-  isUnpicCompatible(_image)
-) {
-  image = await getImagesOptimized(_image, props, unpicOptimizer);
-} else if (_image) {
-  image = await getImagesOptimized(_image, props, astroAssetsOptimizer);
+const isExternal = typeof _image === 'string' && (_image.startsWith('http://') || _image.startsWith('https://'));
+const optimizer = isExternal && isUnpicCompatible(_image) ? unpicOptimizer : astroAssetsOptimizer;
+
+if (_image) {
+  // Generate AVIF version
+  avifImage = await getImagesOptimized(_image, { ...props, format: 'avif' }, optimizer);
+  // Generate WebP version
+  webpImage = await getImagesOptimized(_image, { ...props, format: 'webp' }, optimizer);
+  // Generate original/fallback version
+  image = await getImagesOptimized(_image, props, optimizer);
 }
 ---
 
@@ -56,6 +60,10 @@ if (
   !image ? (
     <Fragment />
   ) : (
-    <img src={image.src} crossorigin="anonymous" referrerpolicy="no-referrer" {...image.attributes} />
+    <picture>
+      {avifImage && <source type="image/avif" srcset={avifImage.attributes.srcset} sizes={avifImage.attributes.sizes} />}
+      {webpImage && <source type="image/webp" srcset={webpImage.attributes.srcset} sizes={webpImage.attributes.sizes} />}
+      <img src={image.src} crossorigin="anonymous" referrerpolicy="no-referrer" {...image.attributes} />
+    </picture>
   )
 }

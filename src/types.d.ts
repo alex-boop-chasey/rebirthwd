@@ -139,6 +139,7 @@ export interface Item {
   classes?: Record<string, string>;
   callToAction?: CallToAction;
   image?: Image;
+  href?: string;
 }
 
 export interface Price {
@@ -218,6 +219,7 @@ export interface Hero extends Omit<Headline, 'classes'>, Omit<Widget, 'isDark' |
   actions?: string | CallToAction[];
   image?: string | unknown;
   video?: Video;
+  muxPlaybackId?: string;
   poster?: string;
 }
 

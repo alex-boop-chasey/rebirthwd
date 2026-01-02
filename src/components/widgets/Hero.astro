@@ -13,6 +13,7 @@ const {
   actions = await Astro.slots.render('actions'),
   image = await Astro.slots.render('image'),
   video,
+  muxPlaybackId,
   poster,
 
   id,
@@ -77,7 +78,20 @@ const {
         class="intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade"
       >
         {
-          video ? (
+          muxPlaybackId ? (
+            <div class="relative m-auto max-w-5xl">
+              <mux-player
+                playback-id={muxPlaybackId}
+                autoplay="muted"
+                loop
+                playsinline
+                accent-color="#3b82f6"
+                style="--controls: none; aspect-ratio: 16/9;"
+                class="mx-auto rounded-md w-full"
+                poster={poster}
+              ></mux-player>
+            </div>
+          ) : video ? (
             <div class="relative m-auto max-w-5xl">
               <video
                 class="mx-auto rounded-md w-full object-cover"
