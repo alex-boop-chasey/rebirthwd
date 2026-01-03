@@ -10,7 +10,7 @@ const turnstileSiteKey = TURNSTILE?.siteKey;
 console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
 ---
 
-<form id="contact-form" method="post" action="" novalidate>
+<form id="contact-form" method="post" action="" novalidate data-astro-reload>
   {
     inputs &&
       inputs.map(

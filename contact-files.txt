@@ -1,62 +1,56 @@
 ================================================================================
-CONTACT FORM EMAIL SENDING - FILE REFERENCE (UPDATED)
+CONTACT FORM EMAIL SENDING - FILE REFERENCE (CURRENT SNAPSHOT)
 ================================================================================
 
-CURRENT STATUS: Form is DISABLED on live site (temporarily)
-- Contact page shows email/phone directly instead of form
-- All backend code remains in place but inactive
-- Ready to re-enable when email solution is implemented
+CURRENT STATUS: Form is ACTIVE and READY
+- Contact form fully enabled on live site
+- Resend domain verified (rebirthwebdesign.com.au)
+- Turnstile configured for production domain
+- All environment variables configured
 
-Last Updated: 2026-01-03
-Domain pointed to: Cloudflare Pages
+Last Updated: 2026-01-04
+Domain: rebirthwebdesign.com.au (pointed to Cloudflare Pages)
+Status: Production Ready ✓
 
 ================================================================================
-1. CONTACT PAGE - FORM DISABLED (CURRENT STATE)
+1. CONTACT PAGE - FORM ACTIVE
 ================================================================================
 
 Filename: contact.astro
 Location: /Users/alex/Desktop/Websites/rebirthwd/src/pages/contact.astro
-Status: ⚠️ FORM CURRENTLY DISABLED - Showing direct contact info instead
+Status: ✓ ACTIVE - Form enabled and operational
 
-Current Active Code (lines 21-41):
-<!-- CONTACT FORM TEMPORARILY DISABLED -->
-<div class="max-w-3xl mx-auto px-4 py-16 text-center">
-  <h2 class="text-3xl font-bold mb-6 dark:text-white">Get in Touch</h2>
-  <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
-    Our contact form is currently being updated. Please reach out to us directly:
-  </p>
-  <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700">
-    <p class="text-xl mb-4 dark:text-white">
-      <strong>Email:</strong>
-      <a href="mailto:hello@rebirthwebdesign.com.au" class="text-primary hover:underline">
-        hello@rebirthwebdesign.com.au
-      </a>
-    </p>
-    <p class="text-xl dark:text-white">
-      <strong>Phone:</strong>
-      <a href="tel:+61488162040" class="text-primary hover:underline">
-        +61 488 162 040
-      </a>
-    </p>
-  </div>
-</div>
-
-Commented Out (lines 43-69) - Original Form Configuration:
+Current Code (lines 21-45):
 <ContactUs
   id="form"
   title="Drop us a message today!"
+  subtitle="For quicker answers, explore our FAQs section. You may find the solution you're looking for right there! If not, our support team is delighted to help you."
   inputs={[
-    { type: 'text', name: 'name', label: 'Name' },
-    { type: 'email', name: 'email', label: 'Email' },
+    {
+      type: 'text',
+      name: 'name',
+      label: 'Name',
+    },
+    {
+      type: 'email',
+      name: 'email',
+      label: 'Email',
+    },
   ]}
-  textarea={{ label: 'Message' }}
+  textarea={{
+    label: 'Message',
+  }}
   disclaimer={{
     label: 'By submitting this contact form, you acknowledge and agree to the collection of your personal information.',
   }}
   description="Our support team typically responds within 24 business hours."
 />
 
-To Re-Enable: Uncomment the <ContactUs> block and remove the temporary div
+Features2 Widget (lines 49-82):
+- Displays contact information below form
+- Phone: +61 488 162 040
+- Email: hello@rebirthwebdesign.com.au
+- Location: Bundaberg, Queensland, Australia
 
 ================================================================================
 2. CONTACT WIDGET - WRAPPER COMPONENT
@@ -64,18 +58,19 @@ To Re-Enable: Uncomment the <ContactUs> block and remove the temporary div
 
 Filename: Contact.astro
 Location: /Users/alex/Desktop/Websites/rebirthwd/src/components/widgets/Contact.astro
-Status: ✓ Code intact, not currently used
+Status: ✓ Active - Currently in use
 
-Relevant Code:
----
-import FormContainer from '~/components/ui/Form.astro';
-import SuccessModal from '~/components/ui/SuccessModal.astro';
-import Headline from '~/components/ui/Headline.astro';
-import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+Purpose: Wraps Form component and SuccessModal
 
+Imports:
+- FormContainer from '~/components/ui/Form.astro'
+- SuccessModal from '~/components/ui/SuccessModal.astro'
+- Headline from '~/components/ui/Headline.astro'
+- WidgetWrapper from '~/components/ui/WidgetWrapper.astro'
+
+Structure:
 <WidgetWrapper id={id} isDark={isDark}>
   <Headline title={title} subtitle={subtitle} tagline={tagline} />
-
   <div class="flex flex-col max-w-xl mx-auto rounded-lg backdrop-blur border">
     <FormContainer
       inputs={inputs}
@@ -85,7 +80,6 @@ import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
       description={description}
     />
   </div>
-
   <SuccessModal />
 </WidgetWrapper>
 
@@ -95,14 +89,39 @@ import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
 
 Filename: Form.astro
 Location: /Users/alex/Desktop/Websites/rebirthwd/src/components/ui/Form.astro
-Status: ✓ Enhanced with error logging (not currently active)
+Status: ✓ Active with enhanced error logging
 
 Key Features:
 - Client-side field validation (required fields, email format)
-- Cloudflare Turnstile widget integration
+- Cloudflare Turnstile widget integration (implicit rendering)
 - Enhanced error handling with detailed console logging
 - User-friendly error messages displayed on page
 - Success modal integration
+
+Turnstile Configuration (lines 4-10):
+import { TURNSTILE } from 'astrowind:config';
+
+const { inputs, textarea, disclaimer, button = 'Contact us', description = '' } = Astro.props;
+const turnstileEnabled = TURNSTILE?.enabled;
+const turnstileSiteKey = TURNSTILE?.siteKey;
+
+console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
+
+Turnstile Widget Rendering (lines 84-89):
+{
+  turnstileEnabled && turnstileSiteKey && (
+    <div class="mt-6">
+      <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="auto"></div>
+    </div>
+  )
+}
+
+Turnstile Script Loading (lines 111-114):
+{
+  turnstileEnabled && turnstileSiteKey && (
+    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  )
+}
 
 Form Submission Handler (lines 237-286):
 // Submit to API with robust error handling
@@ -122,7 +141,6 @@ Form Submission Handler (lines 237-286):
     if (response.ok && result.success) {
       console.log('Form submitted successfully:', result);
 
-      // Success - show modal and reset form
       if (window.showSuccessModal) {
         window.showSuccessModal();
       } else {
@@ -158,7 +176,6 @@ Form Submission Handler (lines 237-286):
 
 Error Display Helper (lines 217-233):
 function showFormError(message) {
-  // Remove any old error
   const oldError = form.querySelector('#form-general-error');
   if (oldError) oldError.remove();
 
@@ -167,17 +184,11 @@ function showFormError(message) {
   errorDiv.className = 'text-red-600 dark:text-red-400 text-sm mt-4 text-center font-medium';
   errorDiv.textContent = message;
 
-  // Insert above the submit button
   const submitButton = form.querySelector('button[type="submit"]');
   if (submitButton && submitButton.parentNode) {
     submitButton.parentNode.insertBefore(errorDiv, submitButton);
   }
 }
-
-Turnstile Widget:
-- Site Key: 0x4AAAAAACKOMomcie5cCyHQ
-- Loaded from config.yaml
-- Renders automatically in form
 
 ================================================================================
 4. SUCCESS MODAL - SUCCESS FEEDBACK
@@ -185,9 +196,9 @@ Turnstile Widget:
 
 Filename: SuccessModal.astro
 Location: /Users/alex/Desktop/Websites/rebirthwd/src/components/ui/SuccessModal.astro
-Status: ✓ Code intact
+Status: ✓ Active
 
-Relevant Code:
+Modal Structure:
 <div id="success-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
   <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-md w-full p-8">
     <h3 class="text-2xl font-bold text-center mb-2">Message Sent!</h3>
@@ -198,12 +209,11 @@ Relevant Code:
   </div>
 </div>
 
-<script>
-  (window as any).showSuccessModal = () => {
-    modal?.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  };
-</script>
+JavaScript API:
+(window as any).showSuccessModal = () => {
+  modal?.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+};
 
 ================================================================================
 5. API ENDPOINT - PRIMARY EMAIL HANDLER (ASTRO)
@@ -211,15 +221,13 @@ Relevant Code:
 
 Filename: send-email.ts
 Location: /Users/alex/Desktop/Websites/rebirthwd/src/pages/api/send-email.ts
-Status: ⚠️ Code intact but BLOCKED - Domain not verified in Resend
+Status: ✓ ACTIVE - Production ready with verified domain
 
 Current Implementation:
 - Uses Resend API for email sending
 - Verifies Cloudflare Turnstile token server-side
 - Enhanced error logging
 - Cloudflare runtime environment variable access
-
-Key Sections:
 
 Environment Access (lines 9-26):
 const runtime = locals.runtime;
@@ -233,7 +241,40 @@ console.log('Environment check:', {
   hasTurnstileKey: !!TURNSTILE_SECRET_KEY,
 });
 
-Turnstile Verification (lines 54-73):
+if (!RESEND_API_KEY || !CONTACT_EMAIL) {
+  return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+    status: 500,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+FormData Parsing with Fallback (lines 28-37):
+let formData: FormData;
+try {
+  formData = await request.formData();
+} catch (error) {
+  console.error('formData failed, falling back to text parse:', error);
+  const text = await request.text();
+  formData = new FormData();
+  new URLSearchParams(text).forEach((value, key) => formData.append(key, value));
+}
+
+Field Extraction and Validation (lines 39-51):
+const name = formData.get('name') as string | null;
+const email = formData.get('email') as string | null;
+const message = formData.get('message') as string | null;
+const turnstileToken = formData.get('cf-turnstile-response') as string | null;
+
+console.log('Form data received:', { name, email, hasMessage: !!message, hasTurnstileToken: !!turnstileToken });
+
+if (!name || !email || !message || !turnstileToken) {
+  return new Response(JSON.stringify({ error: 'Missing fields or Turnstile token' }), {
+    status: 400,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+Turnstile Server-Side Verification (lines 54-73):
 if (TURNSTILE_SECRET_KEY) {
   const verifyResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
     method: 'POST',
@@ -255,12 +296,12 @@ if (TURNSTILE_SECRET_KEY) {
   }
 }
 
-Email Sending (lines 75-100):
+Email Sending via Resend (lines 75-100):
 const resend = new Resend(RESEND_API_KEY);
 
 const { error } = await resend.emails.send({
-  from: 'Contact <contact@mail.rebirthwebdesign.com.au>',  // ⚠️ UNVERIFIED DOMAIN
-  to: [CONTACT_EMAIL],  // alexharris0079@gmail.com
+  from: 'Rebirth Web Design <hello@rebirthwebdesign.com.au>',  // ✓ VERIFIED DOMAIN
+  to: [CONTACT_EMAIL],  // rebirthwd@gmail.com
   subject: `New contact form message from ${name}`,
   reply_to: email,
   html: `
@@ -283,9 +324,10 @@ if (error) {
   });
 }
 
-KNOWN ISSUE:
-Resend returns 403 error: "The mail.rebirthwebdesign.com.au domain is not verified"
-To fix: Add and verify mail.rebirthwebdesign.com.au in Resend dashboard + DNS records
+return new Response(JSON.stringify({ success: true }), {
+  status: 200,
+  headers: { 'Content-Type': 'application/json' },
+});
 
 ================================================================================
 6. CLOUDFLARE PAGES FUNCTION - FALLBACK EMAIL HANDLER
@@ -293,68 +335,43 @@ To fix: Add and verify mail.rebirthwebdesign.com.au in Resend dashboard + DNS re
 
 Filename: send-email.js
 Location: /Users/alex/Desktop/Websites/rebirthwd/functions/send-email.js
-Status: ⚠️ Code intact, same domain verification issue
+Status: ✓ Active fallback handler
 
-Relevant Code:
-import { Resend } from 'resend';
+Purpose: Cloudflare Pages Function as fallback endpoint
+Sender: Rebirth Web Design <hello@rebirthwebdesign.com.au>
+Recipient: rebirthwd@gmail.com (via env.CONTACT_EMAIL)
 
-export const onRequestPost = async ({ request, env }) => {
-  const resend = new Resend(env.RESEND_API_KEY);
-
-  const formData = await request.formData();
-  const name = formData.get('name');
-  const email = formData.get('email');
-  const message = formData.get('message');
-  const turnstileToken = formData.get('cf-turnstile-response');
-
-  // Verify Turnstile token
-  const turnstileVerify = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      secret: env.TURNSTILE_SECRET_KEY,
-      response: turnstileToken,
-      remoteip: request.headers.get('CF-Connecting-IP') || '',
-    }),
-  });
-
-  const turnstileResult = await turnstileVerify.json();
-  if (!turnstileResult.success) {
-    return new Response('Turnstile verification failed', { status: 403 });
-  }
-
-  // Send email
-  const { error } = await resend.emails.send({
-    from: 'Contact <contact@mail.rebirthwebdesign.com.au>',  // ⚠️ UNVERIFIED DOMAIN
-    to: [env.CONTACT_EMAIL],
-    subject: `New message from ${name}`,
-    reply_to: email,
-    html: `
-      <p><strong>From:</strong> ${name} (${email})</p>
-      <p><strong>Message:</strong></p>
-      <p>${message.replace(/\n/g, '<br>')}</p>
-    `,
-  });
-
-  if (error) {
-    console.error('Resend error:', error);
-    return new Response('Email failed', { status: 500 });
-  }
-
-  return new Response(JSON.stringify({ success: true }), { status: 200 });
-};
+Same functionality as API route:
+- Turnstile verification
+- Resend email sending
+- Error handling
 
 ================================================================================
-7. ASTRO CONFIGURATION - CLOUDFLARE ADAPTER
+7. BASE LAYOUT - TURNSTILE PERFORMANCE OPTIMIZATION
+================================================================================
+
+Filename: Layout.astro
+Location: /Users/alex/Desktop/Websites/rebirthwd/src/layouts/Layout.astro
+Status: ✓ Active
+
+Turnstile Preconnect Hint (line 41):
+<!-- Turnstile performance optimization -->
+<link rel="preconnect" href="https://challenges.cloudflare.com">
+
+Purpose:
+- Establishes early connection to Cloudflare servers
+- Improves Turnstile widget loading performance
+- Recommended by Cloudflare's official documentation
+
+================================================================================
+8. ASTRO CONFIGURATION - CLOUDFLARE ADAPTER
 ================================================================================
 
 Filename: astro.config.ts
 Location: /Users/alex/Desktop/Websites/rebirthwd/astro.config.ts
 Status: ✓ Active
 
-Relevant Code:
-import cloudflare from '@astrojs/cloudflare';
-
+Cloudflare Adapter Configuration:
 export default defineConfig({
   adapter: cloudflare({
     platformProxy: {
@@ -376,38 +393,45 @@ export default defineConfig({
 Purpose:
 - Enables Cloudflare Pages deployment
 - Provides runtime environment access (locals.runtime.env)
-- Works in both local dev (with .dev.vars) and production (with env vars)
+- Works in both local dev (with .dev.vars) and production (with Cloudflare env vars)
 
 ================================================================================
-8. SITE CONFIGURATION - TURNSTILE SETTINGS
+9. SITE CONFIGURATION - TURNSTILE SETTINGS
 ================================================================================
 
 Filename: config.yaml
 Location: /Users/alex/Desktop/Websites/rebirthwd/src/config.yaml
 Status: ✓ Active
 
-Relevant Code:
+Turnstile Configuration (lines 74-76):
 turnstile:
   enabled: true
-  siteKey: '0x4AAAAAACKOMomcie5cCyHQ'
+  siteKey: '0x4AAAAAACKWGPNkksFcaeI9'
+
+Details:
+- Site Key: 0x4AAAAAACKWGPNkksFcaeI9 (Production)
+- Secret Key: 0x4AAAAAACKWGNvzqNeQAzhtcymld4XD-jA (In environment variables)
+- Allowed Domains: rebirthwebdesign.com.au, www.rebirthwebdesign.com.au
+- Widget Mode: Managed
+- Theme: Auto (adapts to light/dark mode)
 
 Usage:
-- Site key loaded by Form.astro
-- Renders Turnstile widget in form
-- Secret key verification happens server-side in API route
+- Loaded by Form.astro via TURNSTILE import
+- Renders widget using implicit rendering method
+- Server-side verification in API route
 
 ================================================================================
-9. ENVIRONMENT VARIABLES - LOCAL DEVELOPMENT (CLOUDFLARE)
+10. ENVIRONMENT VARIABLES - LOCAL DEVELOPMENT
 ================================================================================
 
 Filename: .dev.vars
 Location: /Users/alex/Desktop/Websites/rebirthwd/.dev.vars
-Status: ✓ Active in local dev
+Status: ✓ Active (Cloudflare local runtime)
 
 Full Contents:
 RESEND_API_KEY=re_TPB2NeF2_91jLjUJ96h8fh4toh74KYfM2
-CONTACT_EMAIL=alexharris0079@gmail.com
-TURNSTILE_SECRET_KEY=0x4AAAAAACKOMlsANeJ58_PPR4xCbXg8s7I
+CONTACT_EMAIL=rebirthwd@gmail.com
+TURNSTILE_SECRET_KEY=0x4AAAAAACKWGNvzqNeQAzhtcymld4XD-jA
 
 Purpose:
 - Used by Cloudflare's platformProxy in local development
@@ -415,7 +439,7 @@ Purpose:
 - Not committed to git (in .gitignore)
 
 ================================================================================
-10. ENVIRONMENT VARIABLES - GENERAL ASTRO
+11. ENVIRONMENT VARIABLES - GENERAL ASTRO
 ================================================================================
 
 Filename: .env
@@ -424,10 +448,10 @@ Status: ✓ Active
 
 Full Contents:
 # Cloudflare Turnstile Secret Key
-TURNSTILE_SECRET_KEY=0x4AAAAAACKOMlsANeJ58_PPR4xCbXg8s7I
+TURNSTILE_SECRET_KEY=0x4AAAAAACKWGNvzqNeQAzhtcymld4XD-jA
 
 RESEND_API_KEY=re_TPB2NeF2_91jLjUJ96h8fh4toh74KYfM2
-CONTACT_EMAIL=alexharris0079@gmail.com
+CONTACT_EMAIL=rebirthwd@gmail.com
 
 Purpose:
 - General Astro environment variables
@@ -437,124 +461,158 @@ Purpose:
 Note: With Cloudflare adapter, .dev.vars takes precedence in local dev
 
 ================================================================================
-CURRENT EMAIL FLOW (WHEN RE-ENABLED)
+PRODUCTION EMAIL FLOW
 ================================================================================
 
-1. User fills out form on contact.astro page
-2. Form.astro validates input client-side (email format, required fields)
-3. Cloudflare Turnstile widget generates token
-4. Form.astro submits via fetch to /api/send-email endpoint
-5. send-email.ts (API route) receives POST request
-6. send-email.ts verifies Turnstile token with Cloudflare
-7. send-email.ts attempts to send email via Resend API
-8. ⚠️ CURRENT BLOCKER: Resend rejects - domain not verified
-9. On success: SuccessModal.astro shows confirmation
-10. On error: Detailed error logged to console + terminal
+1. User visits rebirthwebdesign.com.au/contact
+2. Form.astro loads with Turnstile widget (0x4AAAAAACKWGPNkksFcaeI9)
+3. User fills: Name, Email, Message, Disclaimer checkbox
+4. Cloudflare Turnstile widget generates challenge token
+5. User completes Turnstile challenge
+6. Form validates all fields client-side (email format, required fields)
+7. Form submits via fetch to /api/send-email endpoint
+8. send-email.ts receives POST request
+9. send-email.ts verifies Turnstile token with Cloudflare (server-side)
+10. send-email.ts sends email via Resend API:
+    - From: Rebirth Web Design <hello@rebirthwebdesign.com.au>
+    - To: rebirthwd@gmail.com
+    - Reply-To: [user's email from form]
+    - Subject: "New contact form message from [name]"
+11. On success: SuccessModal appears, form resets
+12. On error: Red error message displayed on page + console logging
 
 ================================================================================
-KNOWN ISSUES & BLOCKERS
+CLOUDFLARE PAGES DEPLOYMENT CONFIGURATION
 ================================================================================
 
-Issue #1: Domain Not Verified in Resend
-- Sender: contact@mail.rebirthwebdesign.com.au
-- Error: 403 "The mail.rebirthwebdesign.com.au domain is not verified"
-- Solution Options:
-  A. Verify mail.rebirthwebdesign.com.au in Resend + add DNS records
-  B. Switch to different email service (Brevo, SendGrid, etc.)
-  C. Use Cloudflare Email Routing + Workers
-  D. Simple mailto: link approach
+Domain: rebirthwebdesign.com.au
+Platform: Cloudflare Pages
+Deployment: Git push auto-deploys
 
-Issue #2: Form Currently Disabled on Live Site
-- Contact page shows direct email/phone instead of form
-- Prevents errors showing to live visitors
-- Ready to re-enable when email solution is working
+Required Environment Variables in Cloudflare Pages Dashboard:
+1. RESEND_API_KEY = re_TPB2NeF2_91jLjUJ96h8fh4toh74KYfM2
+2. CONTACT_EMAIL = rebirthwd@gmail.com
+3. TURNSTILE_SECRET_KEY = 0x4AAAAAACKWGNvzqNeQAzhtcymld4XD-jA
 
-Issue #3: Resend Approach Complexity
-- Requires domain verification
-- DNS record management
-- Free tier limitations
-- Considered too complex for simple contact form
+Resend Configuration:
+- Domain: rebirthwebdesign.com.au (Verified ✓)
+- Sender: hello@rebirthwebdesign.com.au
+- Verification Method: Cloudflare auto-verify
+- DNS Records: Automatically added via Cloudflare integration
+- Status: Production ready
 
-================================================================================
-PROPOSED ALTERNATIVES (NOT YET IMPLEMENTED)
-================================================================================
-
-Option A: Brevo/Sendinblue API (REST, not SMTP)
-- Free tier: 300 emails/day
-- No domain verification required for testing
-- REST API works in Cloudflare Workers
-- Replace Resend calls with Brevo API
-
-Option B: Simple Cloudflare Worker
-- Standalone Worker deployment
-- Use Brevo/SendGrid REST API
-- No Astro/Resend complexity
-- Requires separate Wrangler deployment
-
-Option C: Cloudflare Email Routing
-- Forward emails to Gmail
-- Requires domain email setup
-- Native Cloudflare solution
-- More setup overhead
-
-Option D: Temporary mailto: Link
-- Current implementation (active on live site)
-- Simplest solution
-- No backend needed
-- Manual email handling
+Turnstile Configuration:
+- Site Name: Rebirth Web Design Contact Form
+- Site Key: 0x4AAAAAACKWGPNkksFcaeI9
+- Secret Key: 0x4AAAAAACKWGNvzqNeQAzhtcymld4XD-jA
+- Allowed Domains: rebirthwebdesign.com.au, www.rebirthwebdesign.com.au
+- Widget Mode: Managed
+- Rendering Method: Implicit
 
 ================================================================================
-DEPLOYMENT NOTES
+IMPLEMENTATION METHODS
 ================================================================================
 
-Local Development:
-- Run: npm run dev
-- Environment: .dev.vars
-- Test endpoint: http://localhost:4321/api/send-email
-- Form: http://localhost:4321/contact (currently shows email/phone only)
+Turnstile Implementation: Implicit Rendering
+- Script loads automatically via <script src="...api.js" async defer>
+- Widget renders via <div class="cf-turnstile" data-sitekey="...">
+- Configured with data-theme="auto" attribute
+- Performance optimized with preconnect hint
 
-Production (Cloudflare Pages):
-- Domain: rebirthwebdesign.com.au (pointed to Cloudflare)
-- Environment vars must be set in Cloudflare Pages dashboard
-- Deploy: git push (auto-deploys via GitHub integration)
-- Contact page: Currently shows direct contact info, not form
+Email Service: Resend REST API
+- Official Resend npm package
+- Verified domain sender (hello@rebirthwebdesign.com.au)
+- Reply-to field set to user's email for easy responses
+- HTML email template with user details
 
-Environment Variables Needed in Production:
-- RESEND_API_KEY (if using Resend)
-- CONTACT_EMAIL (alexharris0079@gmail.com)
-- TURNSTILE_SECRET_KEY (if verifying server-side)
+Form Validation: Multi-Layer
+- Client-side: JavaScript validation (required fields, email format)
+- Server-side: Field presence check + Turnstile token verification
+- Spam Protection: Cloudflare Turnstile challenge
 
-To Re-Enable Form:
-1. Implement working email solution
-2. Test locally first
-3. Uncomment ContactUs in src/pages/contact.astro
-4. Remove temporary contact info div
-5. Deploy to production
-6. Test on live site
+Error Handling: Comprehensive
+- Client-side: Visible error messages + detailed console logs
+- Server-side: Enhanced error logging with full error details
+- Network errors: Caught and displayed to user
+- Failed submissions: Clear error messages with fallback contact info
 
 ================================================================================
 FILE STRUCTURE SUMMARY
 ================================================================================
 
 Frontend (Client-Side):
-├── src/pages/contact.astro              [FORM DISABLED - Shows email/phone]
-├── src/components/widgets/Contact.astro [Wrapper - Not active]
-├── src/components/ui/Form.astro         [Form logic - Not active]
-└── src/components/ui/SuccessModal.astro [Success feedback - Not active]
+├── src/pages/contact.astro              [ACTIVE - Form enabled]
+├── src/components/widgets/Contact.astro [ACTIVE - Form wrapper]
+├── src/components/ui/Form.astro         [ACTIVE - Form logic + Turnstile]
+└── src/components/ui/SuccessModal.astro [ACTIVE - Success feedback]
 
 Backend (Server-Side):
-├── src/pages/api/send-email.ts          [API route - Blocked by unverified domain]
-└── functions/send-email.js              [Fallback - Same issue]
+├── src/pages/api/send-email.ts          [ACTIVE - Primary API route]
+└── functions/send-email.js              [ACTIVE - Fallback handler]
 
 Configuration:
-├── astro.config.ts                      [Cloudflare adapter - Active]
-├── src/config.yaml                      [Turnstile config - Active]
-├── .dev.vars                            [Local env vars - Active]
-└── .env                                 [General env vars - Active]
+├── src/layouts/Layout.astro             [ACTIVE - Turnstile preconnect]
+├── astro.config.ts                      [ACTIVE - Cloudflare adapter]
+├── src/config.yaml                      [ACTIVE - Turnstile config]
+├── .dev.vars                            [ACTIVE - Local env vars]
+└── .env                                 [ACTIVE - General env vars]
 
-Status: Form functionality complete but disabled due to email delivery blocker
-Next Step: Choose and implement alternative email solution
+Status: ✓ PRODUCTION READY
+All components active, domain verified, Turnstile configured
 
 ================================================================================
-END OF DOCUMENT
+CHANGES FROM PREVIOUS VERSION
 ================================================================================
+
+1. Turnstile Configuration Updated
+   - Old Site Key: 0x4AAAAAACKOMomcie5cCyHQ (invalid for production)
+   - New Site Key: 0x4AAAAAACKWGPNkksFcaeI9 (configured for rebirthwebdesign.com.au)
+   - New Secret Key: 0x4AAAAAACKWGNvzqNeQAzhtcymld4XD-jA
+   - Allowed domains: rebirthwebdesign.com.au, www.rebirthwebdesign.com.au
+
+2. Email Configuration Updated
+   - Sender changed: contact@mail.rebirthwebdesign.com.au → hello@rebirthwebdesign.com.au
+   - Contact email changed: alexharris0079@gmail.com → rebirthwd@gmail.com
+   - Domain status: mail.rebirthwebdesign.com.au (unverified) → rebirthwebdesign.com.au (verified ✓)
+
+3. Performance Optimization Added
+   - Added Turnstile preconnect hint in Layout.astro
+   - Follows Cloudflare's official performance recommendations
+
+4. Form Status Changed
+   - Previous: Disabled with temporary contact card
+   - Current: Fully enabled and operational
+
+5. TypeScript Configuration Fixed
+   - Cleared .astro cache
+   - Regenerated types.d.ts file
+   - Resolved "File not found" error
+
+================================================================================
+TESTING NOTES
+================================================================================
+
+Local Testing (npm run dev):
+- Turnstile will show "Invalid domain" error
+- Widget configured for production domain only
+- API route will work but Turnstile verification will fail
+- Email sending will work if environment variables are set
+
+Production Testing (rebirthwebdesign.com.au):
+- Turnstile widget renders correctly
+- All validations work (client + server + Turnstile)
+- Emails deliver to rebirthwd@gmail.com
+- Reply-to field allows direct customer responses
+- Success modal displays after submission
+
+Monitoring:
+- Browser console: Form submission logs
+- Terminal: Environment check + form data + Resend errors
+- Resend dashboard: Email delivery status at resend.com/emails
+
+================================================================================
+END OF SNAPSHOT
+================================================================================
+
+Last updated: 2026-01-04 04:32 (Local time)
+Contact form is production ready and fully operational.
