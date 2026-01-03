@@ -75,7 +75,7 @@ export const POST: APIRoute = async (context) => {
   const resend = new Resend(RESEND_API_KEY);
 
   const { error } = await resend.emails.send({
-    from: 'Contact <contact@mail.rebirthwebdesign.com.au>',
+    from: 'Rebirth Web Design <hello@rebirthwebdesign.com.au>',
     to: [CONTACT_EMAIL],
     subject: `New contact form message from ${name}`,
     reply_to: email,

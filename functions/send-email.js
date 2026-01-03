@@ -34,7 +34,7 @@ export const onRequestPost = async ({ request, env }) => {
   // Send email
   try {
     const { error } = await resend.emails.send({
-      from: 'Contact <contact@mail.rebirthwebdesign.com.au>',
+      from: 'Rebirth Web Design <hello@rebirthwebdesign.com.au>',
       to: [env.CONTACT_EMAIL],
       subject: `New message from ${name}`,
       reply_to: email,

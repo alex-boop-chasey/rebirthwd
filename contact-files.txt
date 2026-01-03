@@ -1,44 +1,62 @@
 ================================================================================
-CONTACT FORM EMAIL SENDING - FILE REFERENCE
+CONTACT FORM EMAIL SENDING - FILE REFERENCE (UPDATED)
 ================================================================================
 
-This document lists all files involved in the contact form email sending process
-with their locations and relevant code snippets.
+CURRENT STATUS: Form is DISABLED on live site (temporarily)
+- Contact page shows email/phone directly instead of form
+- All backend code remains in place but inactive
+- Ready to re-enable when email solution is implemented
+
+Last Updated: 2026-01-03
+Domain pointed to: Cloudflare Pages
 
 ================================================================================
-1. CONTACT PAGE - FORM CONFIGURATION
+1. CONTACT PAGE - FORM DISABLED (CURRENT STATE)
 ================================================================================
 
 Filename: contact.astro
 Location: /Users/alex/Desktop/Websites/rebirthwd/src/pages/contact.astro
+Status: ⚠️ FORM CURRENTLY DISABLED - Showing direct contact info instead
 
-Relevant Code:
----
-import ContactUs from '~/components/widgets/Contact.astro';
+Current Active Code (lines 21-41):
+<!-- CONTACT FORM TEMPORARILY DISABLED -->
+<div class="max-w-3xl mx-auto px-4 py-16 text-center">
+  <h2 class="text-3xl font-bold mb-6 dark:text-white">Get in Touch</h2>
+  <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
+    Our contact form is currently being updated. Please reach out to us directly:
+  </p>
+  <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700">
+    <p class="text-xl mb-4 dark:text-white">
+      <strong>Email:</strong>
+      <a href="mailto:hello@rebirthwebdesign.com.au" class="text-primary hover:underline">
+        hello@rebirthwebdesign.com.au
+      </a>
+    </p>
+    <p class="text-xl dark:text-white">
+      <strong>Phone:</strong>
+      <a href="tel:+61488162040" class="text-primary hover:underline">
+        +61 488 162 040
+      </a>
+    </p>
+  </div>
+</div>
 
+Commented Out (lines 43-69) - Original Form Configuration:
 <ContactUs
   id="form"
   title="Drop us a message today!"
   inputs={[
-    {
-      type: 'text',
-      name: 'name',
-      label: 'Name',
-    },
-    {
-      type: 'email',
-      name: 'email',
-      label: 'Email',
-    },
+    { type: 'text', name: 'name', label: 'Name' },
+    { type: 'email', name: 'email', label: 'Email' },
   ]}
-  textarea={{
-    label: 'Message',
-  }}
+  textarea={{ label: 'Message' }}
   disclaimer={{
     label: 'By submitting this contact form, you acknowledge and agree to the collection of your personal information.',
   }}
   description="Our support team typically responds within 24 business hours."
 />
+
+To Re-Enable: Uncomment the <ContactUs> block and remove the temporary div
 
 ================================================================================
 2. CONTACT WIDGET - WRAPPER COMPONENT
@@ -46,11 +64,14 @@ import ContactUs from '~/components/widgets/Contact.astro';
 
 Filename: Contact.astro
 Location: /Users/alex/Desktop/Websites/rebirthwd/src/components/widgets/Contact.astro
+Status: ✓ Code intact, not currently used
 
 Relevant Code:
 ---
 import FormContainer from '~/components/ui/Form.astro';
 import SuccessModal from '~/components/ui/SuccessModal.astro';
+import Headline from '~/components/ui/Headline.astro';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
 
 <WidgetWrapper id={id} isDark={isDark}>
   <Headline title={title} subtitle={subtitle} tagline={tagline} />
@@ -74,62 +95,89 @@ import SuccessModal from '~/components/ui/SuccessModal.astro';
 
 Filename: Form.astro
 Location: /Users/alex/Desktop/Websites/rebirthwd/src/components/ui/Form.astro
+Status: ✓ Enhanced with error logging (not currently active)
 
-Relevant Code (Key Sections):
+Key Features:
+- Client-side field validation (required fields, email format)
+- Cloudflare Turnstile widget integration
+- Enhanced error handling with detailed console logging
+- User-friendly error messages displayed on page
+- Success modal integration
 
-FORM HTML:
-<form id="contact-form" method="post" action="" novalidate>
-  <!-- Input fields with error containers -->
-  <div class="error-message hidden text-red-600 dark:text-red-400" data-error-for={name}></div>
-  <input type={type} name={name} id={name} required />
-
-  <!-- Turnstile widget -->
-  {turnstileEnabled && turnstileSiteKey && (
-    <div class="mt-6">
-      <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="auto"></div>
-    </div>
-  )}
-</form>
-
-VALIDATION & SUBMISSION SCRIPT:
-<script is:inline>
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    clearErrors();
-
-    // Validate all required fields
-    inputs.forEach(input => {
-      if (fieldType === 'email' && !isValidEmail(fieldValue)) {
-        showError(fieldId, 'Please enter a valid email address');
-        isValid = false;
-      }
+Form Submission Handler (lines 237-286):
+// Submit to API with robust error handling
+(async function() {
+  try {
+    console.log('Submitting form to /api/send-email');
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: formBody,
     });
 
-    if (isValid) {
-      const formData = new FormData(form);
-      const formBody = new URLSearchParams(formData);
+    const result = await response.json();
 
-      // Try API endpoint first, then fallback to Pages Function
-      const endpoints = ['/api/send-email', '/send-email'];
+    if (response.ok && result.success) {
+      console.log('Form submitted successfully:', result);
 
-      for (const endpoint of endpoints) {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: formBody
-        });
-
-        if (response.ok) {
-          window.showSuccessModal();
-          form.reset();
-          break;
-        }
+      // Success - show modal and reset form
+      if (window.showSuccessModal) {
+        window.showSuccessModal();
+      } else {
+        alert('Thank you! Your message has been sent successfully.');
       }
+      form.reset();
+      clearErrors();
+      submitted = true;
+    } else {
+      console.error('Form submission failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: result.error || 'Unknown server error',
+        fullResponse: result,
+      });
+      showFormError('Sorry, something went wrong. Please try again later or email us directly at hello@rebirthwebdesign.com.au');
     }
-  });
-</script>
+  } catch (networkError) {
+    console.error('Network/fetch error during form submission:', {
+      message: networkError.message,
+      name: networkError.name,
+      stack: networkError.stack,
+    });
+    showFormError('Connection failed. Check your internet and try again.');
+  }
+
+  // Reset button state
+  if (submitButton) {
+    submitButton.disabled = false;
+    submitButton.textContent = originalButtonText;
+  }
+})();
+
+Error Display Helper (lines 217-233):
+function showFormError(message) {
+  // Remove any old error
+  const oldError = form.querySelector('#form-general-error');
+  if (oldError) oldError.remove();
+
+  const errorDiv = document.createElement('div');
+  errorDiv.id = 'form-general-error';
+  errorDiv.className = 'text-red-600 dark:text-red-400 text-sm mt-4 text-center font-medium';
+  errorDiv.textContent = message;
+
+  // Insert above the submit button
+  const submitButton = form.querySelector('button[type="submit"]');
+  if (submitButton && submitButton.parentNode) {
+    submitButton.parentNode.insertBefore(errorDiv, submitButton);
+  }
+}
+
+Turnstile Widget:
+- Site Key: 0x4AAAAAACKOMomcie5cCyHQ
+- Loaded from config.yaml
+- Renders automatically in form
 
 ================================================================================
 4. SUCCESS MODAL - SUCCESS FEEDBACK
@@ -137,6 +185,7 @@ VALIDATION & SUBMISSION SCRIPT:
 
 Filename: SuccessModal.astro
 Location: /Users/alex/Desktop/Websites/rebirthwd/src/components/ui/SuccessModal.astro
+Status: ✓ Code intact
 
 Relevant Code:
 <div id="success-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
@@ -162,82 +211,81 @@ Relevant Code:
 
 Filename: send-email.ts
 Location: /Users/alex/Desktop/Websites/rebirthwd/src/pages/api/send-email.ts
+Status: ⚠️ Code intact but BLOCKED - Domain not verified in Resend
 
-Relevant Code:
-import type { APIRoute } from 'astro';
-import { Resend } from 'resend';
+Current Implementation:
+- Uses Resend API for email sending
+- Verifies Cloudflare Turnstile token server-side
+- Enhanced error logging
+- Cloudflare runtime environment variable access
 
-export const prerender = false;  // Ensure dynamic
+Key Sections:
 
-export const POST: APIRoute = async (context) => {
-  const { request, locals } = context;
+Environment Access (lines 9-26):
+const runtime = locals.runtime;
+const RESEND_API_KEY = runtime.env.RESEND_API_KEY as string | undefined;
+const CONTACT_EMAIL = runtime.env.CONTACT_EMAIL as string | undefined;
+const TURNSTILE_SECRET_KEY = runtime.env.TURNSTILE_SECRET_KEY as string | undefined;
 
-  // Cloudflare env access (works local with platformProxy and prod)
-  const runtime = locals.runtime;
-  const RESEND_API_KEY = runtime.env.RESEND_API_KEY as string | undefined;
-  const CONTACT_EMAIL = runtime.env.CONTACT_EMAIL as string | undefined;
-  const TURNSTILE_SECRET_KEY = runtime.env.TURNSTILE_SECRET_KEY as string | undefined;
+console.log('Environment check:', {
+  hasResendKey: !!RESEND_API_KEY,
+  hasContactEmail: !!CONTACT_EMAIL,
+  hasTurnstileKey: !!TURNSTILE_SECRET_KEY,
+});
 
-  // FormData parsing with fallback
-  let formData: FormData;
-  try {
-    formData = await request.formData();
-  } catch (error) {
-    const text = await request.text();
-    formData = new FormData();
-    new URLSearchParams(text).forEach((value, key) => formData.append(key, value));
-  }
-
-  const name = formData.get('name') as string | null;
-  const email = formData.get('email') as string | null;
-  const message = formData.get('message') as string | null;
-  const turnstileToken = formData.get('cf-turnstile-response') as string | null;
-
-  // Turnstile verification
-  if (TURNSTILE_SECRET_KEY) {
-    const verifyResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        secret: TURNSTILE_SECRET_KEY,
-        response: turnstileToken,
-        remoteip: request.headers.get('CF-Connecting-IP') || '',
-      }),
-    });
-
-    const verifyResult = await verifyResponse.json() as { success: boolean };
-    if (!verifyResult.success) {
-      return new Response(JSON.stringify({ error: 'Turnstile verification failed' }), {
-        status: 403,
-      });
-    }
-  }
-
-  // Send email via Resend
-  const resend = new Resend(RESEND_API_KEY);
-
-  const { error } = await resend.emails.send({
-    from: 'Contact Form <onboarding@resend.dev>', // TODO: Replace with verified domain
-    to: [CONTACT_EMAIL],
-    subject: `New contact form message from ${name}`,
-    reply_to: email,
-    html: `
-      <p><strong>From:</strong> ${name} (${email})</p>
-      <p><strong>Message:</strong></p>
-      <p>${message.replace(/\n/g, '<br>')}</p>
-    `,
+Turnstile Verification (lines 54-73):
+if (TURNSTILE_SECRET_KEY) {
+  const verifyResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      secret: TURNSTILE_SECRET_KEY,
+      response: turnstileToken,
+      remoteip: request.headers.get('CF-Connecting-IP') || '',
+    }),
   });
 
-  if (error) {
-    return new Response(JSON.stringify({ error: 'Failed to send email' }), {
-      status: 500,
+  const verifyResult = await verifyResponse.json() as { success: boolean };
+
+  if (!verifyResult.success) {
+    return new Response(JSON.stringify({ error: 'Turnstile verification failed' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' },
     });
   }
+}
 
-  return new Response(JSON.stringify({ success: true }), {
-    status: 200,
+Email Sending (lines 75-100):
+const resend = new Resend(RESEND_API_KEY);
+
+const { error } = await resend.emails.send({
+  from: 'Contact <contact@mail.rebirthwebdesign.com.au>',  // ⚠️ UNVERIFIED DOMAIN
+  to: [CONTACT_EMAIL],  // alexharris0079@gmail.com
+  subject: `New contact form message from ${name}`,
+  reply_to: email,
+  html: `
+    <p><strong>From:</strong> ${name} (${email})</p>
+    <p><strong>Message:</strong></p>
+    <p>${message.replace(/\n/g, '<br>')}</p>
+  `,
+});
+
+if (error) {
+  console.error('Resend API error:', {
+    message: error.message,
+    name: error.name,
+    statusCode: error.statusCode,
+    raw: error,
   });
-};
+  return new Response(JSON.stringify({ error: 'Failed to send email' }), {
+    status: 500,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+KNOWN ISSUE:
+Resend returns 403 error: "The mail.rebirthwebdesign.com.au domain is not verified"
+To fix: Add and verify mail.rebirthwebdesign.com.au in Resend dashboard + DNS records
 
 ================================================================================
 6. CLOUDFLARE PAGES FUNCTION - FALLBACK EMAIL HANDLER
@@ -245,6 +293,7 @@ export const POST: APIRoute = async (context) => {
 
 Filename: send-email.js
 Location: /Users/alex/Desktop/Websites/rebirthwd/functions/send-email.js
+Status: ⚠️ Code intact, same domain verification issue
 
 Relevant Code:
 import { Resend } from 'resend';
@@ -276,7 +325,7 @@ export const onRequestPost = async ({ request, env }) => {
 
   // Send email
   const { error } = await resend.emails.send({
-    from: 'Contact Form <onboarding@resend.dev>',
+    from: 'Contact <contact@mail.rebirthwebdesign.com.au>',  // ⚠️ UNVERIFIED DOMAIN
     to: [env.CONTACT_EMAIL],
     subject: `New message from ${name}`,
     reply_to: email,
@@ -288,6 +337,7 @@ export const onRequestPost = async ({ request, env }) => {
   });
 
   if (error) {
+    console.error('Resend error:', error);
     return new Response('Email failed', { status: 500 });
   }
 
@@ -300,9 +350,9 @@ export const onRequestPost = async ({ request, env }) => {
 
 Filename: astro.config.ts
 Location: /Users/alex/Desktop/Websites/rebirthwd/astro.config.ts
+Status: ✓ Active
 
 Relevant Code:
-import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
@@ -323,17 +373,28 @@ export default defineConfig({
   ],
 });
 
+Purpose:
+- Enables Cloudflare Pages deployment
+- Provides runtime environment access (locals.runtime.env)
+- Works in both local dev (with .dev.vars) and production (with env vars)
+
 ================================================================================
 8. SITE CONFIGURATION - TURNSTILE SETTINGS
 ================================================================================
 
 Filename: config.yaml
 Location: /Users/alex/Desktop/Websites/rebirthwd/src/config.yaml
+Status: ✓ Active
 
 Relevant Code:
 turnstile:
   enabled: true
   siteKey: '0x4AAAAAACKOMomcie5cCyHQ'
+
+Usage:
+- Site key loaded by Form.astro
+- Renders Turnstile widget in form
+- Secret key verification happens server-side in API route
 
 ================================================================================
 9. ENVIRONMENT VARIABLES - LOCAL DEVELOPMENT (CLOUDFLARE)
@@ -341,13 +402,17 @@ turnstile:
 
 Filename: .dev.vars
 Location: /Users/alex/Desktop/Websites/rebirthwd/.dev.vars
+Status: ✓ Active in local dev
 
 Full Contents:
 RESEND_API_KEY=re_TPB2NeF2_91jLjUJ96h8fh4toh74KYfM2
 CONTACT_EMAIL=alexharris0079@gmail.com
 TURNSTILE_SECRET_KEY=0x4AAAAAACKOMlsANeJ58_PPR4xCbXg8s7I
 
-Note: This file is used by Cloudflare's local runtime (platformProxy)
+Purpose:
+- Used by Cloudflare's platformProxy in local development
+- Accessed via context.locals.runtime.env in API routes
+- Not committed to git (in .gitignore)
 
 ================================================================================
 10. ENVIRONMENT VARIABLES - GENERAL ASTRO
@@ -355,6 +420,7 @@ Note: This file is used by Cloudflare's local runtime (platformProxy)
 
 Filename: .env
 Location: /Users/alex/Desktop/Websites/rebirthwd/.env
+Status: ✓ Active
 
 Full Contents:
 # Cloudflare Turnstile Secret Key
@@ -363,31 +429,132 @@ TURNSTILE_SECRET_KEY=0x4AAAAAACKOMlsANeJ58_PPR4xCbXg8s7I
 RESEND_API_KEY=re_TPB2NeF2_91jLjUJ96h8fh4toh74KYfM2
 CONTACT_EMAIL=alexharris0079@gmail.com
 
-Note: This file is for general Astro environment variables
+Purpose:
+- General Astro environment variables
+- Backup for environment access
+- Not committed to git (in .gitignore)
+
+Note: With Cloudflare adapter, .dev.vars takes precedence in local dev
 
 ================================================================================
-EMAIL FLOW SUMMARY
+CURRENT EMAIL FLOW (WHEN RE-ENABLED)
 ================================================================================
 
 1. User fills out form on contact.astro page
 2. Form.astro validates input client-side (email format, required fields)
-3. Form.astro submits via fetch to /api/send-email endpoint
-4. send-email.ts (API route) receives the POST request
-5. send-email.ts verifies Turnstile token with Cloudflare
-6. send-email.ts uses Resend API to send email
-7. Email sent from: onboarding@resend.dev
-8. Email sent to: alexharris0079@gmail.com
+3. Cloudflare Turnstile widget generates token
+4. Form.astro submits via fetch to /api/send-email endpoint
+5. send-email.ts (API route) receives POST request
+6. send-email.ts verifies Turnstile token with Cloudflare
+7. send-email.ts attempts to send email via Resend API
+8. ⚠️ CURRENT BLOCKER: Resend rejects - domain not verified
 9. On success: SuccessModal.astro shows confirmation
-10. Fallback: If API route fails, tries /send-email (Pages Function)
+10. On error: Detailed error logged to console + terminal
 
 ================================================================================
-KNOWN ISSUE
+KNOWN ISSUES & BLOCKERS
 ================================================================================
 
-Current sender: onboarding@resend.dev
-Problem: This is a test-only sender with poor deliverability to Gmail/Outlook
-Solution: Add verified domain to Resend account and update 'from' field
+Issue #1: Domain Not Verified in Resend
+- Sender: contact@mail.rebirthwebdesign.com.au
+- Error: 403 "The mail.rebirthwebdesign.com.au domain is not verified"
+- Solution Options:
+  A. Verify mail.rebirthwebdesign.com.au in Resend + add DNS records
+  B. Switch to different email service (Brevo, SendGrid, etc.)
+  C. Use Cloudflare Email Routing + Workers
+  D. Simple mailto: link approach
 
-Email logs location: Check Resend dashboard at resend.com/emails
+Issue #2: Form Currently Disabled on Live Site
+- Contact page shows direct email/phone instead of form
+- Prevents errors showing to live visitors
+- Ready to re-enable when email solution is working
 
+Issue #3: Resend Approach Complexity
+- Requires domain verification
+- DNS record management
+- Free tier limitations
+- Considered too complex for simple contact form
+
+================================================================================
+PROPOSED ALTERNATIVES (NOT YET IMPLEMENTED)
+================================================================================
+
+Option A: Brevo/Sendinblue API (REST, not SMTP)
+- Free tier: 300 emails/day
+- No domain verification required for testing
+- REST API works in Cloudflare Workers
+- Replace Resend calls with Brevo API
+
+Option B: Simple Cloudflare Worker
+- Standalone Worker deployment
+- Use Brevo/SendGrid REST API
+- No Astro/Resend complexity
+- Requires separate Wrangler deployment
+
+Option C: Cloudflare Email Routing
+- Forward emails to Gmail
+- Requires domain email setup
+- Native Cloudflare solution
+- More setup overhead
+
+Option D: Temporary mailto: Link
+- Current implementation (active on live site)
+- Simplest solution
+- No backend needed
+- Manual email handling
+
+================================================================================
+DEPLOYMENT NOTES
+================================================================================
+
+Local Development:
+- Run: npm run dev
+- Environment: .dev.vars
+- Test endpoint: http://localhost:4321/api/send-email
+- Form: http://localhost:4321/contact (currently shows email/phone only)
+
+Production (Cloudflare Pages):
+- Domain: rebirthwebdesign.com.au (pointed to Cloudflare)
+- Environment vars must be set in Cloudflare Pages dashboard
+- Deploy: git push (auto-deploys via GitHub integration)
+- Contact page: Currently shows direct contact info, not form
+
+Environment Variables Needed in Production:
+- RESEND_API_KEY (if using Resend)
+- CONTACT_EMAIL (alexharris0079@gmail.com)
+- TURNSTILE_SECRET_KEY (if verifying server-side)
+
+To Re-Enable Form:
+1. Implement working email solution
+2. Test locally first
+3. Uncomment ContactUs in src/pages/contact.astro
+4. Remove temporary contact info div
+5. Deploy to production
+6. Test on live site
+
+================================================================================
+FILE STRUCTURE SUMMARY
+================================================================================
+
+Frontend (Client-Side):
+├── src/pages/contact.astro              [FORM DISABLED - Shows email/phone]
+├── src/components/widgets/Contact.astro [Wrapper - Not active]
+├── src/components/ui/Form.astro         [Form logic - Not active]
+└── src/components/ui/SuccessModal.astro [Success feedback - Not active]
+
+Backend (Server-Side):
+├── src/pages/api/send-email.ts          [API route - Blocked by unverified domain]
+└── functions/send-email.js              [Fallback - Same issue]
+
+Configuration:
+├── astro.config.ts                      [Cloudflare adapter - Active]
+├── src/config.yaml                      [Turnstile config - Active]
+├── .dev.vars                            [Local env vars - Active]
+└── .env                                 [General env vars - Active]
+
+Status: Form functionality complete but disabled due to email delivery blocker
+Next Step: Choose and implement alternative email solution
+
+================================================================================
+END OF DOCUMENT
 ================================================================================
