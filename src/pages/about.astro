@@ -1,11 +1,13 @@
 ---
 import Features2 from '~/components/widgets/Features2.astro';
-import Hero from '~/components/widgets/Hero.astro';
 import Steps2 from '~/components/widgets/Steps2.astro';
 import Steps from '~/components/widgets/Steps.astro';
 import TechStack from '~/components/widgets/TechStack.astro';
 import Guarantee from '~/components/widgets/Guarantee.astro';
 import Layout from '~/layouts/PageLayout.astro';
+import LaptopVideoMockup from '~/components/widgets/LaptopVideoMockup.astro';
+import { Image } from 'astro:assets';
+import laptopMobile from '~/assets/images/about/laptop-mobile.webp';
 
 const metadata = {
   title: 'About us',
@@ -13,21 +15,47 @@ const metadata = {
 ---
 
 <Layout metadata={metadata}>
-  <!-- Hero Widget ******************* -->
+  <!-- Hero Section with Laptop Video ******************* -->
+  <section class="relative md:-mt-[76px] not-prose">
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="pt-0 md:pt-[76px] pointer-events-none"></div>
+      <div class="py-12 md:py-20">
+        <div class="text-center pb-10 md:pb-16 max-w-5xl mx-auto">
+          <p class="text-base text-secondary dark:text-blue-200 font-bold tracking-wide uppercase">
+            About us
+          </p>
+          <h1 class="text-5xl md:text-6xl font-bold leading-tighter tracking-tighter mb-4 font-heading dark:text-gray-200">
+            Next-Generation Static Architecture<br />
+            <span class="text-accent dark:text-white">Redefining Digital Standards</span>
+          </h1>
+          <div class="max-w-3xl mx-auto">
+            <p class="text-xl text-muted mb-6 dark:text-slate-300">
+              Rebirth Web Design is redefining digital standards with next-generation static architecture that's gaining traction in Bundaberg's tech scene. With over a decade of hands-on coding expertise and AI-assisted workflows that accelerate prototyping and delivery, we build on Astro's island rendering and Tailwind's atomic utilities to create sites with exceptional performance, seamless interactivity, and stunning responsive design—elevating Core Web Vitals, accessibility, and edge delivery for modern brands.
+            </p>
+          </div>
+        </div>
 
-  <Hero
-    tagline="About us"
-    muxPlaybackId="h201PJtvABKQ7SXq2Ae1PEMcFe0002WCzNq702017kDObAow"
-  >
-    <Fragment slot="title">
-      Next-Generation Static Architecture<br />
-      <span class="text-accent dark:text-white">Redefining Digital Standards</span>
-    </Fragment>
+        <!-- Mobile: Static Image (< tablet) -->
+        <div class="m-auto max-w-5xl md:hidden">
+          <Image
+            src={laptopMobile}
+            alt="Laptop displaying video"
+            class="mx-auto rounded-md w-full"
+            widths={[400, 768]}
+            sizes="(max-width: 767px) 400px, 768px"
+            loading="eager"
+            width={1500}
+            height={1000}
+          />
+        </div>
 
-    <Fragment slot="subtitle">
-      Rebirth Web Design is redefining digital standards with next-generation static architecture that's gaining traction in Bundaberg's tech scene. With over a decade of hands-on coding expertise and AI-assisted workflows that accelerate prototyping and delivery, we build on Astro's island rendering and Tailwind's atomic utilities to create sites with exceptional performance, seamless interactivity, and stunning responsive design—elevating Core Web Vitals, accessibility, and edge delivery for modern brands.
-    </Fragment>
-  </Hero>
+        <!-- Tablet+: Laptop Video Mockup (≥ tablet) -->
+        <div class="hidden md:block">
+          <LaptopVideoMockup muxPlaybackId="Ja2I01o8m3LtH9uwZVrCMY15jUbZrqzvfFqFCiqg00FVo" />
+        </div>
+      </div>
+    </div>
+  </section>
 
 
 <Steps2

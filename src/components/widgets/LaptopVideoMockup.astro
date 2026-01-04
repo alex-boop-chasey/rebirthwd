@@ -1,0 +1,82 @@
+---
+import { Image } from 'astro:assets';
+import laptopFrame from '~/assets/images/about/laptop.webp';
+
+interface Props {
+  muxPlaybackId: string;
+  class?: string;
+}
+
+const { muxPlaybackId, class: className = '' } = Astro.props;
+---
+
+<!-- Mux Player Script -->
+<script src="https://cdn.jsdelivr.net/npm/@mux/mux-player@latest" defer></script>
+
+<div class={`m-auto max-w-5xl ${className}`}>
+  <div class="laptop-container">
+    <!-- Laptop frame as base (bottom layer) -->
+    <Image
+      src={laptopFrame}
+      alt="Laptop frame"
+      class="laptop-frame-base"
+      widths={[400, 768, 1024, 2040]}
+      sizes="(max-width: 767px) 400px, (max-width: 1023px) 768px, (max-width: 2039px) 1024px, 2040px"
+      loading="eager"
+      width={1500}
+      height={1000}
+    />
+
+    <!-- Mux Player - on top, masked to screen area only -->
+    <div class="video-container">
+      <mux-player
+        playback-id={muxPlaybackId}
+        autoplay="muted"
+        loop
+        muted
+        playsinline
+        class="mux-video"
+      ></mux-player>
+    </div>
+  </div>
+</div>
+
+<style>
+  .laptop-container {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Base laptop image (includes solid black screen) */
+  .laptop-frame-base {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Updated top position: 120px / 844px ≈ 14.2180% */
+  .video-container {
+    position: absolute;
+    left: 12.5333%;
+    top: 14.2180%;   /* Precise calculation */
+    width: 74.6667%;
+    height: auto;
+    aspect-ratio: 16/9;
+    z-index: 20;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  /* Mux video fills the masked container */
+  .mux-video {
+    --controls: none;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;            /* Ensures it fills without distortion */
+  }
+
+  mux-player::part(bottom) {
+    display: none;
+  }
+</style>

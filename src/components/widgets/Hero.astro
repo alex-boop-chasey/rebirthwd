@@ -77,36 +77,59 @@ const {
       <div
         class="intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade"
       >
-        {
-          muxPlaybackId ? (
-            <div class="relative m-auto max-w-5xl">
-              <mux-player
-                playback-id={muxPlaybackId}
-                autoplay="muted"
-                loop
-                playsinline
-                accent-color="#3b82f6"
-                style="--controls: none; aspect-ratio: 16/9;"
-                class="mx-auto rounded-md w-full"
-                poster={poster}
-              ></mux-player>
+        <div class="relative m-auto max-w-5xl">
+          {/* Mobile fallback image (if video exists) */}
+          {(muxPlaybackId || video) && image && (
+            <div class="md:hidden">
+              {typeof image === 'string' ? (
+                <Fragment set:html={image} />
+              ) : (
+                <Image
+                  class="mx-auto rounded-md w-full"
+                  widths={[400, 768]}
+                  sizes="(max-width: 767px) 400px, 768px"
+                  loading="eager"
+                  width={1024}
+                  height={576}
+                  {...image}
+                />
+              )}
             </div>
-          ) : video ? (
-            <div class="relative m-auto max-w-5xl">
-              <video
-                class="mx-auto rounded-md w-full object-cover"
-                autoplay
-                muted
-                loop
-                playsinline
-                poster={poster}
-              >
-                <source src={video.src} type={video.type || 'video/mp4'} />
-                Your browser does not support the video tag.
-              </video>
-            </div>
-          ) : image ? (
-            <div class="relative m-auto max-w-5xl">
+          )}
+
+          {/* Mux video (desktop/tablet) */}
+          {muxPlaybackId && (
+            <video
+              autoplay
+              muted
+              loop
+              playsinline
+              class="mx-auto rounded-md w-full hidden md:block"
+              style="background: transparent;"
+            >
+              <source src={`https://stream.mux.com/${muxPlaybackId}.m3u8`} type="application/x-mpegURL" />
+              Your browser does not support the video tag.
+            </video>
+          )}
+
+          {/* Regular video (desktop/tablet) */}
+          {!muxPlaybackId && video && (
+            <video
+              class="mx-auto rounded-md w-full object-cover hidden md:block"
+              autoplay
+              muted
+              loop
+              playsinline
+              poster={poster}
+            >
+              <source src={video.src} type={video.type || 'video/mp4'} />
+              Your browser does not support the video tag.
+            </video>
+          )}
+
+          {/* Image only (no video) */}
+          {!muxPlaybackId && !video && image && (
+            <>
               {typeof image === 'string' ? (
                 <Fragment set:html={image} />
               ) : (
@@ -120,9 +143,9 @@ const {
                   {...image}
                 />
               )}
-            </div>
-          ) : null
-        }
+            </>
+          )}
+        </div>
       </div>
     </div>
   </div>

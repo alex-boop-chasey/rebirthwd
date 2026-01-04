@@ -26,3 +26,11 @@ pnpm-lock.yaml
 *.psd
 *.ai
 .vscode/
+.mp4
+*.mov
+*.avi
+*.mkv
+*.flv
+*.wmv
+*.gif
+*.webm
