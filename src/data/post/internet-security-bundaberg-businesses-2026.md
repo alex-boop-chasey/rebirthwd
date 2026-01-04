@@ -2,7 +2,8 @@
 publishDate: 2026-01-01T00:00:00Z
 title: "Internet Security Essentials for Bundaberg Businesses in 2026"
 excerpt: "As cyber threats rise, Bundaberg small businesses must prioritize online security to protect data and customers. Discover practical tools and tips to safeguard your operations affordably."
-image: https://images.unsplash.com/photo-1570068940896-949819b340d9?ixlib=rb-4.0.3&q=80&w=2070&auto=format&fit=crop
+image: "~/assets/images/blog/locks.avif"
+imageAlt: "Digital security locks protecting Bundaberg small business data and customer information online"
 author: "Alex Harris"
 category: Cybersecurity
 tags:

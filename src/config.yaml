@@ -1,6 +1,6 @@
 site:
-  name: rebirthWebDesign
-  site: 'https://astrowind.vercel.app'
+  name: Rebirth Web Design
+  site: 'https://rebirthwebdesign.com.au'
   base: '/'
   trailingSlash: false
 
@@ -9,16 +9,16 @@ site:
 # Default SEO metadata
 metadata:
   title:
-    default: rebirthWebDesign
-    template: '%s — rebirthWebDesign'
-  description: "\U0001F680 Suitable for Startups, Small Business, Sass Websites, Professional Portfolios, Marketing Websites, Landing Pages & Blogs."
+    default: Rebirth Web Design
+    template: '%s — Rebirth Web Design'
+  description: "Rebirth Web Design builds modern, high-performance static websites for Bundaberg businesses using Astro and Tailwind CSS. Fast, secure, and built for growth."
   robots:
     index: true
     follow: true
   openGraph:
-    site_name: rebirthWebDesign
+    site_name: Rebirth Web Design
     images:
-      - url: '~/assets/images/default.png'
+      - url: '~/assets/images/home/hero-image.webp'
         width: 1200
         height: 628
     type: website

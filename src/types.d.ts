@@ -22,6 +22,8 @@ export interface Post {
   excerpt?: string;
   /**  */
   image?: ImageMetadata | string;
+  /** Alt text for featured image (for SEO and accessibility) */
+  imageAlt?: string;
 
   /**  */
   category?: Taxonomy;
@@ -72,6 +74,7 @@ export interface MetaDataImage {
   url: string;
   width?: number;
   height?: number;
+  alt?: string;
 }
 
 export interface MetaDataOpenGraph {

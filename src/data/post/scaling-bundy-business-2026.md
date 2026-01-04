@@ -2,8 +2,9 @@
 publishDate: 2026-01-01T08:30:00Z
 title: "Scaling the Summit: Why Bundaberg is Australia’s Entrepreneurial Capital in 2026"
 excerpt: "With a 178% surge in startups, Bundaberg is outpacing Sydney. Discover how to use speed and security as your staircase to the top."
-image: https://images.unsplash.com/photo-1516996087931-5ae405802f9f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80
-author: "Alex Rebirth"  # ADD THIS SECTION (required)
+image: "~/assets/images/blog/stairs.avif"
+imageAlt: "Entrepreneur climbing stairs symbolizing business growth and scaling in Bundaberg's digital economy"
+author: "Alex Harris"
 category: Growth
 tags:
   - Bundaberg Business
@@ -16,7 +17,7 @@ metadata:
 
 Bundaberg isn't just a regional hub anymore; as of early 2026, we are officially the most entrepreneurial city in Australia. Recent data shows a staggering **178% rise in small business startups** in our region over the last year—a growth rate that outpaces Sydney by more than 2.4 times.
 
-For local owners, from the manufacturing plants in East Bundy to the boutiques at Bargara, the "staircase" to success in 2026 is built on two things: digital speed and ironclad trust.
+For local owners, from the manufacturing plants in East Bundy to the boutiques at Bargara, the "stairway" to success in 2026 is built on two things: digital speed and ironclad trust.
 
 ## The First Step: Speed as a Competitive Edge
 
