@@ -32,9 +32,10 @@ const metadata = {
     image={{ src: '~/assets/images/home/hero-image.webp', alt: 'Rebirth Web Design' }}
   >
     <Fragment slot="title">
-      High-performance websites<br class="hidden xl:block" />
-      <span class="text-accent dark:text-white"> engineered for the modern web</span>
-    </Fragment>
+  High-performance websites<br class="hidden xl:block" />
+  <span class="text-accent dark:text-white inline-block pl-[0.125em]">engineered for the modern web</span>
+  <!-- pl-[0.125em] adds a tiny indent to mimic natural word spacing after break -->
+</Fragment>
 
     <Fragment slot="subtitle">
       Rebirth Web Design builds fast, secure, static-first websites using a modern, production-grade web architecture.
