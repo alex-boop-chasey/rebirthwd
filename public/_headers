@@ -1,2 +1,29 @@
+# Cache Astro build assets for 1 year (they have hashed filenames)
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Cache images for 1 year
+/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache fonts for 1 year
+*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+*.woff
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache favicon for 1 week
+/favicon.*
+  Cache-Control: public, max-age=604800
+
+# Cache HTML pages for 1 hour (dynamic content)
+/*.html
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# Cache sitemap for 1 day
+/sitemap*.xml
+  Cache-Control: public, max-age=86400
+
+# Cache root with short TTL for frequent updates
+/
+  Cache-Control: public, max-age=300, must-revalidate

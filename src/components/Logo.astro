@@ -1,11 +1,14 @@
 ---
+import { Image } from 'astro:assets';
 import logo from '~/assets/images/logo/logo.webp';
 ---
 
-<img 
-  src={logo.src} 
-  width={180}
-  height={logo.height * (180 / logo.width)}
-  alt="ReBirth Web Design Logo" 
-  class="max-w-[180px] w-auto h-auto self-center" 
+<Image
+  src={logo}
+  width={360}
+  height={114}
+  alt="ReBirth Web Design Logo"
+  class="max-w-[180px] w-auto h-auto self-center"
+  loading="eager"
+  decoding="async"
 />

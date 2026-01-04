@@ -10,6 +10,11 @@ const metadata = {
 ---
 
 <Layout metadata={metadata}>
+  <Fragment slot="head">
+    <!-- Turnstile performance optimization - only on contact page -->
+    <link rel="preconnect" href="https://challenges.cloudflare.com">
+  </Fragment>
+
   <!-- Hero Widget ******************* -->
 
   <Hero
