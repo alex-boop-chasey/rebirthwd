@@ -4,12 +4,15 @@ import { Image } from 'astro:assets';
 import { SITE } from 'astrowind:config';
 import { getHomePermalink } from '~/utils/permalinks';
 import logo from '~/assets/images/logo/logo.webp';
+import Button from '~/components/ui/Button.astro';
 
 interface Link {
   text?: string;
   href?: string;
   ariaLabel?: string;
   icon?: string;
+  variant?: string;
+  isAction?: boolean;
 }
 
 interface Links {
@@ -69,17 +72,30 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme 
             <div class="dark:text-gray-300 font-medium mb-2">{title}</div>
             {links && Array.isArray(links) && links.length > 0 && (
               <ul class="text-sm">
-                {links.map(({ text, href, ariaLabel }) => (
-                  <li class="mb-2">
-                    <a
-                      class="text-muted hover:text-gray-700 hover:underline dark:text-gray-400 transition duration-150 ease-in-out"
-                      href={href}
-                      aria-label={ariaLabel}
-                    >
-                      <Fragment set:html={text} />
-                    </a>
-                  </li>
-                ))}
+                  {links.map((link) => (
+                    <li class="mb-2">
+                      {
+                        (link.isAction || (link.href && link.href.startsWith && link.href.startsWith('tel:'))) ? (
+                          <Button
+                            text={link.isAction ? link.text : 'Call Now'}
+                            href={link.href}
+                            icon={link.icon || 'tabler:phone'}
+                            variant={link.variant || 'secondary'}
+                            class="py-2.5 px-4 text-sm inline-flex items-center align-middle"
+                            style="margin-left:-17px;"
+                          />
+                        ) : (
+                          <a
+                            class="text-muted hover:text-gray-700 hover:underline dark:text-gray-400 transition duration-150 ease-in-out"
+                            href={link.href}
+                            aria-label={link.ariaLabel}
+                          >
+                            <Fragment set:html={link.text} />
+                          </a>
+                        )
+                      }
+                    </li>
+                  ))}
               </ul>
             )}
           </div>
