@@ -9,8 +9,8 @@ category: Growth
 tags:
   - Bundaberg Business
   - Web Performance
-  - SMB1001
-  - Scaling
+  - Cybersecurity
+  - Entrepreneurship
 metadata:
   canonical: https://rebirthwebdesign.com.au/scaling-bundy-business-2026
 ---

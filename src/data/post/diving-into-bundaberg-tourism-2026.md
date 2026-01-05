@@ -10,8 +10,8 @@ tags:
   - Bundaberg Business
   - Local SEO
   - Web Performance
-  - Scaling
   - Entrepreneurship
+  - Small Business
   - 2026 Trends
 metadata:
   canonical: https://rebirthwebdesign.com.au/diving-into-bundaberg-tourism-2026

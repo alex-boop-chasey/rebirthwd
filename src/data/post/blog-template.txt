@@ -10,8 +10,6 @@ category: {{CATEGORY}}  # e.g., Growth, Tools, Design, Local Business
 # - Bundaberg Business
 # - Local SEO
 # - Web Performance
-# - SMB1001
-# - Scaling
 # - Tools
 # - AI Tools
 # - Astro JS
