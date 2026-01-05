@@ -11,6 +11,7 @@ import icon from 'astro-icon';
 import compress from 'astro-compress';
 import type { AstroIntegration } from 'astro';
 import cloudflare from '@astrojs/cloudflare';
+import mcp from 'astro-mcp';
 
 import astrowind from './vendor/integration';
 
@@ -36,6 +37,7 @@ export default defineConfig({
     }),
     sitemap(),
     mdx(),
+    mcp(),
     icon({
       include: {
         tabler: ['*'],
