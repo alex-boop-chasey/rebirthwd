@@ -55,6 +55,8 @@ export const footerData = {
   ],
   socialLinks: [
     { ariaLabel: 'Facebook', icon: 'tabler:brand-facebook', href: 'https://www.facebook.com/rebirthwd' },
+    { ariaLabel: 'Instagram', icon: 'tabler:brand-instagram', href: 'https://www.instagram.com/rebirthwd' },
+    { ariaLabel: 'YouTube', icon: 'tabler:brand-youtube', href: 'https://www.youtube.com/@ReBirthWebDesign' },
   ],
   footNote: `
     &copy; 2026 Rebirth Web Design/Alex Harris. All Rights Reserved.
