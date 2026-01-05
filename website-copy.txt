@@ -1,0 +1,272 @@
+WEBSITE COPY
+
+GLOBAL HEADER (appears on Home/About/Blog/Contact)
+- Logo image: logo.webp — alt: "ReBirth Web Design Logo"
+- Navigation links: Home, About, Blog, Contact
+- Header action button: Call Us
+
+GLOBAL FOOTER (appears on Home/About/Blog/Contact)
+- Logo image: logo.webp — alt: "Rebirth"
+- Logo text: WebDesign
+- Secondary links: Terms, Privacy Policy
+- Footer section: Pages
+  - Home
+  - About
+  - Blog
+  - Contact
+- Footer section: Contact
+  - Phone: 0488 162 040
+  - Bundaberg, QLD
+  - Email Us
+- Footer section: Legal
+  - Terms
+  - Privacy Policy
+- Footnote: © 2026 Rebirth Web Design/Alex Harris. All Rights Reserved.
+
+HOME PAGE (/) — src/pages/index.astro
+Hero
+- Heading: High-performance websites / engineered for the modern web
+- Subtitle: Rebirth Web Design builds fast, secure, static-first websites using a modern, production-grade web architecture.
+- Buttons: Explore the Stack; How We Work
+- Image: hero-image.webp — alt: "Rebirth Web Design"
+
+Design Philosophy (Note)
+- Heading: Design Philosophy
+- Body: Performance first. Simplicity by design. Built for longevity.
+
+Core Approach (Features)
+- Tagline: Core Approach
+- Heading: Modern web architecture, done properly
+- Subtitle: This is how contemporary websites are built for speed, resilience, and scale.
+- Feature: Astro + Tailwind Stack
+  - ReBirth builds with the Astro and Tailwind framework to eliminate the PHP and database bloat found in traditional CMS platforms. This results in content delivery with zero unnecessary JavaScript and a high-performance UI.
+- Feature: Modular Component Architecture
+  - ReBirth utilizes a modular component library to ensure code consistency. This architecture prevents "CSS leak" and makes the site easier to scale without the fragility and bloat of third-party WordPress plugins.
+- Feature: Static Site Security
+  - ReBirth removes common attack vectors like databases and admin login portals. By deploying via Static Site Generation (SSG), the site is effectively un-hackable and significantly more stable than legacy platforms.
+- Feature: Lighthouse Performance
+  - ReBirth optimizes for 100/100 Lighthouse scores. By pre-rendering the entire site at build time, users experience instant page transitions and superior performance that leaves traditional sites behind.
+- Feature: Technical SEO
+  - ReBirth bakes SEO directly into the source code. Using Astro's native capabilities for semantic HTML and automated metadata ensures the site is structured to be crawled and ranked efficiently from day one.
+- Feature: Git-Based Workflow
+  - ReBirth operates with a professional Git-based deployment pipeline. This includes automated testing and version control, allowing for seamless updates, transparent development, and instant rollbacks if needed.
+
+The Foundation (Content)
+- Tagline: The Foundation
+- Heading: Built on modern, proven technology
+- Item: Built on top of Astro 5.0
+  - Benefiting from the performance and developer-friendly features of this modern static site generator.
+- Item: Styled using Tailwind CSS
+  - Facilitating rapid design and consistent styling with this highly popular utility-first CSS framework.
+- Item: Cross-browser compatibility
+  - Ensure your website looks and functions consistently across various web browsers, delivering a seamless experience to all users.
+- Image: feat1.webp — alt: "Modern development workspace"
+- Subheading: Architecture that prioritises performance
+- Body: Designed to load fast, stay secure, and scale without rewrites.
+
+Content (Section 2)
+- Item: High level of customization
+  - Tailor the template effortlessly to match your brand's identity and requirements, making your website distinct and saving you time.
+- Item: Multiple layout possibilities
+  - Explore various layout options to find the structure that best presents your content, enhancing user engagement and navigation.
+- Item: Fully responsive design
+  - Ensure your website's optimal performance on various devices and screen sizes, providing a consistent and enjoyable user experience.
+- Item: Integration of media
+  - Seamlessly incorporate images, videos, and multimedia elements that enhance your content and engage visitors effectively.
+- Image: feat2.webp — alt: "Design blueprint"
+
+Content (Section 3)
+- Item: Enhanced user engagement
+  - Captivate your audience with interactive elements, intuitive navigation, and visually appealing layouts, encouraging longer visits.
+- Item: Continuous improvement
+  - Ensure your website stays aligned with the latest trends and technologies through regular updates and enhancements.
+- Item: Time and resource efficiency
+  - Skip the time-consuming process of building a website from scratch and launch your online presence sooner with AstroWind.
+- Item: Community support
+  - Join the growing AstroWind community for insights, resources, and assistance, ensuring you're never alone on your web development journey.
+- Image: feat3.webp — alt: "Future-focused design"
+
+Website Sections (Features2)
+- Tagline: Website Sections
+- Heading: Core Sections We Build for Bundaberg Businesses
+- Subtitle: High-performance, mobile-first components powered by Astro and Tailwind CSS – designed to convert local visitors into customers
+- Headers: Clean, fast-loading navigation that helps customers find what they need instantly – no confusion, just clear direction.
+- Heros: Bold first impressions with stunning local imagery and clear messaging that grabs attention the moment someone lands on your site.
+- Features: Showcase your services or products with confidence – highlight what makes your Bundaberg business stand out from the crowd.
+- Content: Tell your story clearly and professionally. Well-structured sections that build trust and keep visitors reading.
+- Call-to-Action: Strategic buttons and forms that encourage bookings, enquiries, or calls – turning website visitors into real customers.
+- Pricing: Transparent, easy-to-read pricing displays that help customers make confident decisions without second-guessing.
+- Testimonial: Real reviews from local customers that build credibility and show why people in Bundaberg choose you.
+- Contact: Simple, accessible contact forms and maps so locals can reach you quickly – phone, email, or directions to your door.
+- Footers: Professional closing sections with quick links, contact details, and trust signals that leave a lasting impression.
+
+From the blog (BlogLatestPosts)
+- Heading: From the blog
+- Info: Insights on modern web design, performance, and long-term maintainability.
+- Link text: View all posts
+
+Latest blog post cards (same post copy as Blog page list; see Blog section below)
+
+Frequently Asked Questions (FAQs)
+- Tagline: FAQs
+- Heading: Frequently Asked Questions
+- Subtitle: Here are the questions I hear most often about ReBirth Web Design. If your question isn’t answered below, feel free to reach out—I’m happy to chat.
+- Q: Why choose ReBirth Web Design for my project?
+  - I focus on fast, modern static websites built with Astro and Tailwind CSS—delivering standout design, blazing speed, and 90+ Lighthouse scores out of the box. Every site is mobile-first, accessible, SEO-ready, and tailored to your vision without unnecessary complexity or bloat.
+- Q: What kinds of projects do you take on?
+  - My core expertise is in high-quality static sites: portfolios, business landing pages, marketing sites, documentation hubs, and personal brands. I’m also open to light dynamic features (e.g., forms, search, or simple APIs) when they add real value, all while keeping performance and maintainability first.
+- Q: How long does it take to build a website?
+  - A focused prototype can be ready in just a few days. Full custom sites typically take 2–4 weeks from kickoff to launch, depending on scope and feedback rounds. I work iteratively—quick wins early, refinements along the way—so you see progress fast.
+- Q: What do you need from me to get started?
+  - Clear goals, any existing branding/assets (logo, colors, photos), content (or a plan for it), and reference sites you love. If you’re not sure about any of that, I can guide you through discovery and help shape the direction.
+- Q: How much does a website cost?
+  - Pricing is custom and transparent based on your needs. I offer a limited number of pro-bono or heavily discounted sites each year to build momentum and portfolio pieces. Paid projects start in the mid-four-figure range for bespoke, high-performance sites. I’ll provide a detailed quote after our initial discussion.
+- Q: Do you offer maintenance or updates after launch?
+  - Yes. I can hand off the full source code for you or your team to manage, or I can provide ongoing support (updates, new sections, performance tweaks) on a monthly retainer or per-request basis—whatever fits your workflow best.
+
+Stats
+- Build Days: 2-3
+- Load Speed: <2s
+- Client Satisfaction: 100%
+- Astro Users: 39k+
+
+Call to Action
+- Heading: Rebirth Web Design
+- Subtitle: Modern websites, built to last.
+- Button: Start Your Project
+
+ABOUT PAGE (/about) — src/pages/about.astro
+Hero
+- Tagline: About us
+- Heading: Next-Generation Static Architecture / Redefining Digital Standards
+- Body: Rebirth Web Design is redefining digital standards with next-generation static architecture that's gaining traction in Bundaberg's tech scene. With over a decade of hands-on coding expertise and AI-assisted workflows that accelerate prototyping and delivery, we build on Astro's island rendering and Tailwind's atomic utilities to create sites with exceptional performance, seamless interactivity, and stunning responsive design—elevating Core Web Vitals, accessibility, and edge delivery for modern brands.
+- Image: laptop-mobile.webp — alt: "Laptop displaying video"
+
+Our Values (Steps2)
+- Heading: Our Values
+- Body: At Rebirth Web Design, every decision is guided by lessons learned from past projects and a commitment to doing things better. We prioritize renewal—not just for client sites, but in how we work: lean, efficient, and always evolving with modern tools like Astro, Tailwind, and AI assistance to accelerate delivery without sacrificing quality or creativity.
+
+  We believe in building long-term trust over quick wins, focusing on mobile-first performance, accessibility, and sustainable practices that reduce digital waste. Working remotely (often from Codespaces or even mobile) gives us flexibility and keeps overhead low, allowing us to deliver standout static sites with innovation at the core and genuine care in every detail.
+- Item: Renewal & Innovation
+  - We turn lessons from outdated approaches into opportunities for fresh, high-performance static sites—embracing cutting-edge tools and AI to prototype faster and innovate smarter.
+- Item: Efficiency Without Burnout
+  - AI-assisted workflows, cloud-based mobility, and streamlined processes let us deliver prototypes in days while maintaining creative energy and work-life balance.
+- Item: Trust & Sustainability
+  - We build relationships on transparency and results, prioritizing eco-friendly hosting, accessible design, and long-term maintainability over short-term complexity.
+
+From Ideation to Iteration (Steps)
+- Heading: From Ideation to Iteration
+- Step: Step 1: Architecture
+  - A clean, modular project structure built for maintainability.
+- Step: Step 2: Version Control
+  - Every change tracked and reversible using GitHub.
+- Step: Step 3: Cloud Deployment
+  - Automatic global deployment via Cloudflare.
+- Step: Live
+- Image: launch.webp — alt: "Steps image"
+
+Our Modern Tech Stack (TechStack)
+- Heading: Our Modern Tech Stack
+- Tagline: Powered by industry-leading tools for performance and innovation
+- Items: Astro, Tailwind CSS, GitHub, Cloudflare
+
+Our Guarantee (Guarantee)
+- Tagline: From Our Founder
+- Heading: Our Guarantee
+- Body: As the founder of Rebirth Web Design, servicing Bundaberg, Hervey Bay, Maryborough, and the wider Wide Bay-Burnett region with expert website design and web design services, I've worked tirelessly over the years to develop a product that represents the platinum industry standard in modern web development. This unwavering guarantee reflects that commitment: your new site will load blazingly fast, look stunning on every device, and perfectly embody your vision—or we'll refine it at no additional cost until it does. Renewed from hard-learned lessons in past ventures, our process harnesses cutting-edge tools like Astro and Tailwind CSS to deliver high-performance static websites that far surpass outdated, bloated systems. We build every project mobile-first, fully accessible, and optimised for Lighthouse scores over 90 from launch, ensuring standout online success for local businesses across the Wide Bay region. If you're an innovator in Bundaberg, Hervey Bay, Maryborough, or beyond ready to elevate your digital presence, we're dedicated to earning your trust through transparent collaboration, rapid prototypes, and results that set the benchmark—guaranteed.
+- Signature: Alex Harris
+- Title: Alex Harris - Founder and Creative Director
+
+Technical Support (Features2)
+- Tagline: Contact us
+- Heading: Technical Support
+- Item: Chat with us
+  - Ready for live chat support on technical issues, quick questions, error resolutions, or ongoing project guidance Monday through Friday, from 9:00 AM to 5:00 PM Australian Eastern Standard Time (AEST).
+- Item: Call us
+  - Available for phone-based technical support, troubleshooting assistance, and in-depth consultations Monday through Friday, from 9:00 AM to 5:00 PM Australian Eastern Standard Time (AEST).
+
+BLOG PAGE (/blog) — src/pages/[...blog]/[...page].astro
+Headline
+- Heading: The Blog
+- Subtitle: A statically generated blog example with news, tutorials, resources and other interesting content related to AstroWind
+
+Pagination
+- Newer posts
+- Older posts
+
+Blog list cards (titles, excerpts, tags, categories, dates, images)
+- Post: At the Crossroads: How To Choose The Path For Digital Growth in 2026
+  - Date: Jan 15, 2026
+  - Author: Alex Harris
+  - Category: Growth
+  - Excerpt: Bundaberg businesses stand at a digital crossroads in 2026—discover how to leverage modern tools for growth amid a 178% surge in startups. Get practical advice to build a fast, secure online presence that drives success.
+  - Tags: Bundaberg Business, Small Business, Entrepreneurship, 2026 Trends
+  - Image: crossroads.avif — alt: "At the Crossroads: How To Choose The Path For Digital Growth in 2026"
+- Post: Is Your Web Designer Using These Tools? Why The Stack Matters
+  - Date: Jan 15, 2026
+  - Author: Alex Harris
+  - Category: Tools
+  - Excerpt: Bundaberg business owners: Ensure your web designer uses modern tools like Astro, Tailwind CSS, and GitHub for fast, secure sites. Discover why outdated frameworks like WordPress and Joomla are no longer ideal in 2026.
+  - Tags: Bundaberg Business, Front-End, Small Business, Tools, Astro JS, Tailwind CSS
+  - Image: tools.avif — alt: "Is Your Web Designer Using These Tools? Why The Stack Matters"
+- Post: Diving into Bundaberg Tourism: Turtles, World-Class Great Barrier Reef Diving, and Business Opportunities in 2026
+  - Date: Jan 10, 2026
+  - Author: Alex Harris
+  - Category: Growth
+  - Excerpt: Bundaberg tourism is booming with over 88,000 international visitors to the Southern Great Barrier Reef in 2025—explore Mon Repos turtles, premier diving conditions, and how local businesses can harness fast, secure websites to tap into this global market.
+  - Tags: Bundaberg Business, Local SEO, Web Performance, Entrepreneurship, Small Business, 2026 Trends
+  - Image: tourism.avif — alt: "Diving into Bundaberg Tourism: Turtles, World-Class Great Barrier Reef Diving, and Business Opportunities in 2026"
+- Post: Scaling the Summit: Why Bundaberg is Australia’s Entrepreneurial Capital in 2026
+  - Date: Jan 1, 2026
+  - Author: Alex Harris
+  - Category: Growth
+  - Excerpt: With a 178% surge in startups, Bundaberg is outpacing Sydney. Discover how to use speed and security as your staircase to the top.
+  - Tags: Bundaberg Business, Web Performance, Cybersecurity, Entrepreneurship
+  - Image: stairs.avif — alt: "Scaling the Summit: Why Bundaberg is Australia’s Entrepreneurial Capital in 2026"
+- Post: Internet Security Essentials for Bundaberg Businesses in 2026
+  - Date: Jan 1, 2026
+  - Author: Alex Harris
+  - Category: Cybersecurity
+  - Excerpt: As cyber threats rise, Bundaberg small businesses must prioritize online security to protect data and customers. Discover practical tools and tips to safeguard your operations affordably.
+  - Tags: Bundaberg Business, Cybersecurity, Small Business, 2026 Trends
+  - Image: locks.avif — alt: "Internet Security Essentials for Bundaberg Businesses in 2026"
+
+CONTACT PAGE (/contact) — src/pages/contact.astro
+Hero
+- Tagline: Contact
+- Heading: Let's Connect!
+- Image: hero-image.webp — alt: "Contact Rebirth Web Design"
+
+Contact Form Section
+- Heading: Drop us a message today!
+- Subtitle: For quicker answers, explore our FAQs section. You may find the solution you're looking  for right there! If not, our support team is delighted to help you.
+- Input label: Name
+- Input label: Email
+- Textarea label: Message
+- Disclaimer text: By submitting this contact form, you acknowledge and agree to the collection of your personal information.
+- Button text: Contact us
+- Description: Our support team typically responds within 24 business hours.
+
+Contact Form Feedback Messages (in-page validation and modal)
+- Please check this box to continue
+- [Field] is required
+- Please enter a valid email address (e.g., alex@gmail.com)
+- Thank you for reaching out. We've received your message and will get back to you within 24 hours.
+- Message Sent!
+- Close
+- Thank you! Your message has been sent successfully.
+
+We are here to help! (Features2)
+- Heading: We are here to help!
+- Item: General support
+  - Chat with us for inquiries related to account management, website navigation, payment issues, accessing purchased templates or general questions about the website's functionality.
+- Item: Contact sales
+  - Chat with us for questions about purchases, customization options, licensing for commercial use, inquiries about specific template, etc.
+- Item: Technical support
+  - Chat with us when facing issues like template installation, problems editing difficulties, compatibility issues with software or download errors, or other technical challenges related to using the templates.
+- Item: Phone
+  - +61 488 162 040
+- Item: Email
+  - hello@rebirthwebdesign.com.au
+- Item: Location
+  - Bundaberg, Queensland, Australia
