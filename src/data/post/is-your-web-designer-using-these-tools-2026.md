@@ -30,7 +30,7 @@ category: Tools
 
 tags:
   - Bundaberg Business
-  - Web Design
+  - Front-End
   - Small Business
   - Tools
   - Astro JS
