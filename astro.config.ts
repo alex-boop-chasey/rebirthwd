@@ -31,6 +31,10 @@ export default defineConfig({
     imageService: 'compile',
   }),
 
+  build: {
+    inlineStylesheets: 'never',
+  },
+
   integrations: [
     tailwind({
       applyBaseStyles: false,
