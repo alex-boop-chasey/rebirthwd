@@ -12,7 +12,6 @@ import { getStaticPathsBlogPost, blogPostRobots } from '~/utils/blog';
 import { findImage } from '~/utils/images';
 import type { MetaData } from '~/types';
 import RelatedPosts from '~/components/blog/RelatedPosts.astro';
-import { SITE } from 'astrowind:config';
 
 export const prerender = true;
 
@@ -27,12 +26,48 @@ const { post } = Astro.props as Props;
 const url = getCanonical(getPermalink(post.permalink, 'post'));
 const image = (await findImage(post.image)) as ImageMetadata | string | undefined;
 
-// Prepare image URL for structured data
-const imageUrl = typeof image === 'string'
-  ? image
-  : image
-    ? new URL(image.src, SITE.site || Astro.site).toString()
-    : undefined;
+const canonical = post.metadata?.canonical || url;
+const rawImage = post.image;
+const imageUrl = typeof rawImage === 'string'
+  ? rawImage.startsWith('~/assets/')
+    ? `https://rebirthwebdesign.com.au/assets/${rawImage.replace('~/assets/', '')}`
+    : rawImage
+  : undefined;
+const schemaImage = imageUrl && post.imageAlt
+  ? {
+      "@type": "ImageObject",
+      "url": imageUrl,
+      "caption": post.imageAlt
+    }
+  : imageUrl;
+
+const publisher = {
+  "@type": ["Organization", "LocalBusiness"],
+  "name": "Rebirth Web Design Bundaberg",
+  "url": "https://rebirthwebdesign.com.au",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://rebirthwebdesign.com.au/_astro/logo.DPV17xz5_Z1HguKh.webp"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "4A Hinkler Avenue",
+    "addressLocality": "Bundaberg North",
+    "addressRegion": "QLD",
+    "postalCode": "4670",
+    "addressCountry": "AU"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+61 488 162 040",
+    "email": "hello@rebirthwebdesign.com.au",
+    "contactType": "customer service"
+  },
+  "sameAs": [
+    "https://www.instagram.com/rebirthwd/",
+    "https://www.facebook.com/rebirthwd/"
+  ]
+};
 
 // BlogPosting structured data schema
 const schema = {
@@ -40,24 +75,18 @@ const schema = {
   "@type": "BlogPosting",
   "headline": post.title,
   "description": post.excerpt,
-  "image": imageUrl,
+  "image": schemaImage,
   "datePublished": post.publishDate.toISOString(),
   ...(post.updateDate ? { "dateModified": post.updateDate.toISOString() } : {}),
   "author": {
     "@type": "Person",
-    "name": post.author || "Alex Harris"
+    "name": "Alex Harris"
   },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Rebirth Web Design",
-    "logo": {
-      "@type": "ImageObject",
-      "url": new URL("/favicon.svg", SITE.site || Astro.site).toString()
-    }
-  },
+  "publisher": publisher,
+  "url": canonical,
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": url
+    "@id": canonical
   },
   ...(post.category ? { "articleSection": post.category.title } : {}),
   ...(post.tags && post.tags.length > 0 ? { "keywords": post.tags.map(tag => tag.title).join(", ") } : {})
