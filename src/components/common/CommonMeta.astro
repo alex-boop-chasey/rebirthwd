@@ -1,17 +1,20 @@
 ---
 import { getAsset } from '~/utils/permalinks';
+const isProd = import.meta.env.PROD;
 ---
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<!-- Preload critical font for better LCP/FCP -->
-<link
-  rel="preload"
-  href="/_astro/inter-latin-wght-normal.Dx4kXJAl.woff2"
-  as="font"
-  type="font/woff2"
-  crossorigin
-/>
+<!-- Preload critical font for better LCP/FCP (production only - dev uses different paths) -->
+{isProd && (
+  <link
+    rel="preload"
+    href="/_astro/inter-latin-wght-normal.Dx4kXJAl.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  />
+)}
 
 <link rel="sitemap" href={getAsset('/sitemap-index.xml')} />
