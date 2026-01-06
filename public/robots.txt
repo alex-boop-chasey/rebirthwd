@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /
 
+# Cloudflare AI Crawl Control: disable "Display Content Signals Policy" to avoid non-standard Content-signal directives.
+
 # Block AI crawlers from training on content
 User-agent: GPTBot
 Disallow: /

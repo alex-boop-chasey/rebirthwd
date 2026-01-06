@@ -39,6 +39,17 @@ if (!props.decoding) {
 
 const _image = await findImage(props.src);
 
+if (
+  (!props.width || !props.height) &&
+  _image &&
+  typeof _image !== 'string' &&
+  _image.width &&
+  _image.height
+) {
+  props.width = _image.width;
+  props.height = _image.height;
+}
+
 let image: ImageType | undefined = undefined;
 let avifImage: ImageType | undefined = undefined;
 let webpImage: ImageType | undefined = undefined;
