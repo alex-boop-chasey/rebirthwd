@@ -36,7 +36,7 @@ export const footerData = {
     {
       title: 'Contact',
       links: [
-        { text: 'Phone: 0488 162 040', href: 'tel:0488162040' },
+        { text: '+61 488 162 040', href: 'tel:+61488162040' },
         { text: 'Bundaberg, QLD', href: getPermalink('/contact') },
         { text: 'Email Us', href: getPermalink('/contact') },
       ],

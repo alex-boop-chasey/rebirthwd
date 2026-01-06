@@ -51,19 +51,18 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme 
             <span class="text-white">WebDesign</span>
           </a>
         </div>
-        <div class="text-sm text-muted flex gap-1">
-          {
-            secondaryLinks.map(({ text, href }, index) => (
-              <>
-                {index !== 0 ? ' · ' : ''}
-                <a
-                  class="text-muted hover:text-gray-700 dark:text-gray-400 hover:underline transition duration-150 ease-in-out"
-                  href={href}
-                  set:html={text}
-                />
-              </>
-            ))
-          }
+
+        <!-- Newsletter Signup -->
+        <div class="my-6">
+          <p class="text-base text-gray-300 dark:text-gray-400 mb-3">
+            Sign up to our newsletter
+          </p>
+          <a
+            href="/contact?newsletter=true"
+            class="inline-flex items-center justify-center rounded-full border-primary border-2 bg-primary font-semibold text-white text-center text-sm leading-snug transition py-2.5 px-6 ease-in duration-200 hover:bg-secondary hover:border-secondary focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 cursor-pointer"
+          >
+            Sign Up
+          </a>
         </div>
       </div>
       {
@@ -75,9 +74,9 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme 
                   {links.map((link) => (
                     <li class="mb-2">
                       {
-                        (link.isAction || (link.href && link.href.startsWith && link.href.startsWith('tel:'))) ? (
+                        link.isAction ? (
                           <Button
-                            text={link.isAction ? link.text : 'Call Now'}
+                            text={link.text}
                             href={link.href}
                             icon={link.icon || 'tabler:phone'}
                             variant={link.variant || 'secondary'}
