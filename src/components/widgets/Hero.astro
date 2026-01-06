@@ -15,6 +15,14 @@ const {
   video,
   muxPlaybackId,
   poster,
+  imageContainerClass = 'max-w-5xl',
+  imageWidth = 1024,
+  imageHeight = 576,
+  titleBottomSpacing = 'pb-10 md:pb-16',
+  imageMarginTop = '',
+  titleZIndex = '',
+  imageZIndex = '',
+  containerPadding = 'py-12 md:py-20',
 
   id,
   bg = await Astro.slots.render('bg'),
@@ -29,8 +37,8 @@ const {
   </div>
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6">
     <div class="pt-0 md:pt-[76px] pointer-events-none"></div>
-    <div class="py-12 md:py-20">
-      <div class="text-center pb-10 md:pb-16 max-w-5xl mx-auto">
+    <div class={containerPadding}>
+      <div class={`text-center ${titleBottomSpacing} max-w-5xl mx-auto ${titleZIndex}`}>
         {
           tagline && (
             <p
@@ -75,9 +83,9 @@ const {
         {content && <Fragment set:html={content} />}
       </div>
       <div
-        class="intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade"
+        class={`intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade ${imageMarginTop} ${imageZIndex}`}
       >
-        <div class="relative m-auto max-w-5xl">
+        <div class={`relative m-auto ${imageContainerClass}`}>
           {/* Mobile fallback image (if video exists) */}
           {(muxPlaybackId || video) && image && (
             <div class="md:hidden">
@@ -89,8 +97,8 @@ const {
                   widths={[400, 768]}
                   sizes="(max-width: 767px) 400px, 768px"
                   loading="eager"
-                  width={1024}
-                  height={576}
+                  width={imageWidth}
+                  height={imageHeight}
                   {...image}
                 />
               )}
@@ -138,8 +146,8 @@ const {
                   widths={[400, 768, 1024, 2040]}
                   sizes="(max-width: 767px) 400px, (max-width: 1023px) 768px, (max-width: 2039px) 1024px, 2040px"
                   loading="eager"
-                  width={1024}
-                  height={576}
+                  width={imageWidth}
+                  height={imageHeight}
                   {...image}
                 />
               )}

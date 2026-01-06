@@ -39,12 +39,23 @@ export const POST: APIRoute = async (context) => {
   const name = formData.get('name') as string | null;
   const email = formData.get('email') as string | null;
   const message = formData.get('message') as string | null;
+  const disclaimer = formData.get('disclaimer') as string | null;
+  const newsletter = formData.get('newsletter') as string | null;
   const turnstileToken = formData.get('cf-turnstile-response') as string | null;
 
-  console.log('Form data received:', { name, email, hasMessage: !!message, hasTurnstileToken: !!turnstileToken });
+  console.log('Form data received:', { name, email, hasMessage: !!message, newsletter, hasTurnstileToken: !!turnstileToken });
 
-  if (!name || !email || !message || !turnstileToken) {
-    return new Response(JSON.stringify({ error: 'Missing fields or Turnstile token' }), {
+  // Validate required fields (disclaimer must be checked, newsletter is optional)
+  if (!name || !email || !message || !disclaimer) {
+    return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Only require Turnstile token if Turnstile is configured
+  if (TURNSTILE_SECRET_KEY && !turnstileToken) {
+    return new Response(JSON.stringify({ error: 'Missing Turnstile verification' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -80,7 +91,11 @@ export const POST: APIRoute = async (context) => {
     subject: `New contact form message from ${name}`,
     reply_to: email,
     html: `
-      <p><strong>From:</strong> ${name} (${email})</p>
+      <h2>New Contact Form Submission</h2>
+      <p><strong>From:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Newsletter Signup:</strong> ${newsletter === 'yes' ? '✅ Yes' : '❌ No'}</p>
+      <hr>
       <p><strong>Message:</strong></p>
       <p>${message.replace(/\n/g, '<br>')}</p>
     `,

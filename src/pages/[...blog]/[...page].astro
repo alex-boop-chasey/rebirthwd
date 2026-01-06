@@ -39,10 +39,24 @@ const metadata = {
   <section class="px-6 sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-4xl">
     <Headline
       as="h1"
-      subtitle="A statically generated blog example with news, tutorials, resources and other interesting content related to AstroWind"
+      subtitle="Rebirth Web Design delivers practical insights on modern web performance and the shift to future-proof static sites. Our blog equips Bundaberg businesses with actionable advice—from Core Web Vitals optimisation to escaping outdated platforms—drawn from over a decade of coding expertise, AI-accelerated workflows, and the renewal philosophy behind every project."
     >
       The Blog
     </Headline>
+
+    <!-- Newsletter Signup -->
+    <div class="text-center my-12 py-8">
+      <h2 class="text-2xl md:text-3xl font-bold mb-4 dark:text-white">
+        Get informed of new articles in our newsletter.
+      </h2>
+      <a
+        href="/contact?newsletter=true"
+        class="inline-flex items-center justify-center rounded-full border-primary border-2 bg-primary font-semibold text-white text-center text-base leading-snug transition py-3.5 px-8 ease-in duration-200 hover:bg-secondary hover:border-secondary focus:ring-blue-500 focus:ring-offset-blue-200 focus:ring-2 focus:ring-offset-2 cursor-pointer"
+      >
+        Sign Up
+      </a>
+    </div>
+
     <BlogList posts={page.data} />
     <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />
     <!--

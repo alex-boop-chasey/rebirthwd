@@ -67,7 +67,7 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
               name="disclaimer"
               type="checkbox"
               required
-              class="cursor-pointer mt-1 py-3 px-4 block w-full text-md rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900"
+              class="cursor-pointer mt-1 w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
             />
           </div>
           <div class="ml-3">
@@ -79,6 +79,26 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
       </div>
     )
   }
+
+  <!-- Newsletter Signup Checkbox -->
+  <div class="mt-3">
+    <div class="flex items-start">
+      <div class="flex mt-0.5">
+        <input
+          id="newsletter"
+          name="newsletter"
+          type="checkbox"
+          value="yes"
+          class="cursor-pointer mt-1 w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+        />
+      </div>
+      <div class="ml-3">
+        <label for="newsletter" class="cursor-pointer select-none text-sm text-gray-600 dark:text-gray-400">
+          Sign up for our newsletter
+        </label>
+      </div>
+    </div>
+  </div>
 
   {
     turnstileEnabled && turnstileSiteKey && (
@@ -316,4 +336,25 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
       }
     });
   });
+</script>
+
+<script is:inline>
+  // Handle newsletter checkbox auto-checking from URL parameter
+  // Works with both initial page load and view transitions
+  function checkNewsletterParam() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const newsletter = urlParams.get('newsletter');
+    const newsletterCheckbox = document.getElementById('newsletter');
+
+    if (newsletterCheckbox && newsletter === 'true') {
+      newsletterCheckbox.checked = true;
+      console.log('Newsletter checkbox auto-checked from URL parameter');
+    }
+  }
+
+  // Run on initial page load
+  document.addEventListener('DOMContentLoaded', checkNewsletterParam);
+
+  // Run on view transitions (Astro's client-side navigation)
+  document.addEventListener('astro:page-load', checkNewsletterParam);
 </script>
