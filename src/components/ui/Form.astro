@@ -18,7 +18,7 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
           name && (
             <div class="mb-6">
               {label && (
-                <label for={name} class="block text-sm font-medium">
+                <label for={name} class="sr-only">
                   {label}
                 </label>
               )}
@@ -28,7 +28,7 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
                 name={name}
                 id={name}
                 autocomplete={autocomplete}
-                placeholder={placeholder}
+                placeholder={label || placeholder}
                 required
                 class="py-3 px-4 block w-full text-md rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900"
               />
@@ -40,7 +40,7 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
   {
     textarea && (
       <div class="mb-6">
-        <label for="textarea" class="block text-sm font-medium">
+        <label for="textarea" class="sr-only">
           {textarea.label}
         </label>
         <div class="error-message hidden text-red-600 dark:text-red-400 text-sm mt-1 mb-2" data-error-for="textarea"></div>
@@ -48,7 +48,7 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
           id="textarea"
           name={textarea.name ? textarea.name : 'message'}
           rows={textarea.rows ? textarea.rows : 4}
-          placeholder={textarea.placeholder}
+          placeholder={textarea.label || textarea.placeholder}
           required
           class="py-3 px-4 block w-full text-md rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900"
         />

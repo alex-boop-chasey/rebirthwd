@@ -266,9 +266,17 @@ import { UI } from 'astrowind:config';
     },
   };
 
-  Observer.start();
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(() => Observer.start(), { timeout: 1500 });
+  } else {
+    setTimeout(() => Observer.start(), 1);
+  }
 
   document.addEventListener('astro:after-swap', () => {
-    Observer.start();
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => Observer.start(), { timeout: 1500 });
+    } else {
+      setTimeout(() => Observer.start(), 1);
+    }
   });
 </script>
