@@ -224,6 +224,14 @@ export interface Hero extends Omit<Headline, 'classes'>, Omit<Widget, 'isDark' |
   video?: Video;
   muxPlaybackId?: string;
   poster?: string;
+  imageContainerClass?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  titleBottomSpacing?: string;
+  imageMarginTop?: string;
+  titleZIndex?: string;
+  imageZIndex?: string;
+  containerPadding?: string;
 }
 
 export interface Team extends Omit<Headline, 'classes'>, Widget {

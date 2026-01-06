@@ -83,7 +83,7 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme 
                             class="py-2.5 px-4 text-sm inline-flex items-center align-middle"
                             style="margin-left:-17px;"
                           />
-                        ) : (
+                        ) : link.href ? (
                           <a
                             class="text-muted hover:text-gray-700 hover:underline dark:text-gray-400 transition duration-150 ease-in-out"
                             href={link.href}
@@ -91,6 +91,10 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme 
                           >
                             <Fragment set:html={link.text} />
                           </a>
+                        ) : (
+                          <span class="text-muted dark:text-gray-400">
+                            <Fragment set:html={link.text} />
+                          </span>
                         )
                       }
                     </li>
@@ -111,6 +115,8 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme 
                   class="text-muted dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 inline-flex items-center"
                   aria-label={ariaLabel}
                   href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   {icon && <Icon name={icon} class="w-5 h-5" />}
                   <Fragment set:html={text} />
