@@ -39,7 +39,7 @@
     // Close modal function
     const closeModal = () => {
       modal?.classList.add('hidden');
-      document.body.style.overflow = ''; // Re-enable scrolling
+      document.body.classList.remove('overflow-hidden'); // Re-enable scrolling
     };
 
     // Close button click
@@ -62,7 +62,7 @@
     // Export function to show modal
     (window as any).showSuccessModal = () => {
       modal?.classList.remove('hidden');
-      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      document.body.classList.add('overflow-hidden'); // Prevent background scrolling
     };
   }
 

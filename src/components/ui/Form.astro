@@ -307,7 +307,10 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
       } else {
         console.log('Validation failed');
         if (firstErrorField) {
-          firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Use requestAnimationFrame to prevent forced reflow
+          requestAnimationFrame(() => {
+            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
         }
       }
     });

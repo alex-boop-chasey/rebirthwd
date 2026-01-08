@@ -250,18 +250,21 @@ import { UI } from 'astrowind:config';
       });
     },
 
-    /* 
+    /*
       REF: #643;
       We need to remove the delay to fix flickering/delay
       when toggling the theme. Observer only removes them
       after data-animated is gone (out of view).
     */
     removeAnimationDelay() {
-      this.elements.forEach((el) => {
-        if (el.getAttribute('data-animated') === 'true') {
-          el.style.transitionDelay = '';
-          el.style.animationDelay = '';
-        }
+      // Use requestAnimationFrame to batch style updates and prevent forced reflow
+      requestAnimationFrame(() => {
+        this.elements.forEach((el) => {
+          if (el.getAttribute('data-animated') === 'true') {
+            el.style.transitionDelay = '';
+            el.style.animationDelay = '';
+          }
+        });
       });
     },
   };
