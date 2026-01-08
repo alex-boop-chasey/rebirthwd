@@ -48,13 +48,13 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme 
               height={200}
               loading="lazy"
             />
-            <span class="text-white">WebDesign</span>
+            <span class="text-default dark:text-white">WebDesign</span>
           </a>
         </div>
 
         <!-- Newsletter Signup -->
         <div class="my-6">
-          <p class="text-base text-gray-200 dark:text-gray-300 mb-3">
+          <p class="text-base text-gray-700 dark:text-gray-300 mb-3">
             Sign up to our newsletter
           </p>
           <a
@@ -68,7 +68,7 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme 
       {
         links.map(({ title, links }) => (
           <div class="col-span-6 md:col-span-3 lg:col-span-2">
-            <div class="dark:text-gray-300 font-medium mb-2">{title}</div>
+            <div class="text-default dark:text-gray-300 font-medium mb-2">{title}</div>
             {links && Array.isArray(links) && links.length > 0 && (
               <ul class="text-sm">
                   {links.map((link) => (
