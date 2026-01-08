@@ -1,5 +1,5 @@
 ---
-publishDate: 2026-01-15T00:00:00Z
+publishDate: 2026-01-06T00:00:00Z
 title: "At the Crossroads: How To Choose The Path For Digital Growth in 2026"
 excerpt: "Bundaberg businesses stand at a digital crossroads in 2026—discover how to leverage modern tools for growth amid a 178% surge in startups. Get practical advice to build a fast, secure online presence that drives success."
 image: "~/assets/images/blog/crossroads.avif"

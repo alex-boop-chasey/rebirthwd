@@ -1,5 +1,5 @@
 ---
-publishDate: 2026-01-10T08:30:00Z
+publishDate: 2026-01-05T08:30:00Z
 title: "Diving into Bundaberg Tourism: Turtles, World-Class Great Barrier Reef Diving, and Business Opportunities in 2026"
 excerpt: "Bundaberg tourism is booming with over 88,000 international visitors to the Southern Great Barrier Reef in 2025—explore Mon Repos turtles, premier diving conditions, and how local businesses can harness fast, secure websites to tap into this global market."
 image: "~/assets/images/blog/tourism.avif"

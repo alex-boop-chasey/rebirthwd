@@ -1,5 +1,5 @@
 ---
-publishDate: 2026-01-15T00:00:00Z
+publishDate: 2026-01-08T00:00:00Z
 title: "Is Your Web Designer Using These Tools? Why The Stack Matters"
 excerpt: "Bundaberg business owners: Ensure your web designer uses modern tools like Astro, Tailwind CSS, and GitHub for fast, secure sites. Discover why outdated frameworks like WordPress and Joomla are no longer ideal in 2026."
 image: "~/assets/images/blog/tools.avif"
