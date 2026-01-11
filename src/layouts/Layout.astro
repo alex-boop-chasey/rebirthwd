@@ -23,6 +23,12 @@ export interface Props {
 
 const { metadata = {} } = Astro.props;
 const { language, textDirection } = I18N;
+const canonicalUrl = new URL(Astro.url);
+canonicalUrl.search = '';
+canonicalUrl.hash = '';
+if (!canonicalUrl.pathname.endsWith('/')) {
+  canonicalUrl.pathname += '/';
+}
 ---
 
 <!doctype html>
@@ -36,6 +42,7 @@ const { language, textDirection } = I18N;
     <SiteVerification />
     <Analytics />
     <StructuredData />
+    <link rel="canonical" href={canonicalUrl.toString()} />
 
     <slot name="head" />
   </head>
