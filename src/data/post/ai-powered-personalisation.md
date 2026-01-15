@@ -1,4 +1,4 @@
-```yaml
+---
 publishDate: 2026-01-16T00:00:00Z
 title: "AI-Powered Personalisation: Transforming Websites for Better Client Engagement in 2026"
 excerpt: "In 2026, generic websites lose visitors fast. Discover how AI-driven personalisation boosts engagement, conversions, and loyalty for Bundaberg businesses—without complex coding."
@@ -18,7 +18,7 @@ tags:
 
 metadata:
   canonical: https://rebirthwebdesign.com.au/ai-personalisation-websites-2026-bundaberg
-```
+---
 
 Bundaberg's small businesses thrive on personal connections—whether greeting tourists at the distillery or serving locals in Bargara. In 2026, your website must deliver that same tailored feel online. Static, one-size-fits-all pages are losing ground to AI-powered personalisation that adapts content, layout, and offers in real time.
 
