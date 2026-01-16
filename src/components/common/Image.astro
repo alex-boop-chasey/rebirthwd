@@ -9,13 +9,16 @@ import {
   type ImageProps,
 } from '~/utils/images-optimization';
 
-type Props = ImageProps;
+type Props = ImageProps & {
+  placeholderColor?: string;
+};
 type ImageType = {
   src: string;
   attributes: HTMLAttributes<'img'>;
 };
 
 const props = Astro.props;
+const { placeholderColor } = props;
 
 if (props.alt === undefined || props.alt === null) {
   throw new Error();
@@ -74,7 +77,13 @@ if (_image) {
     <picture>
       {avifImage && <source type="image/avif" srcset={avifImage.attributes.srcset} sizes={avifImage.attributes.sizes} />}
       {webpImage && <source type="image/webp" srcset={webpImage.attributes.srcset} sizes={webpImage.attributes.sizes} />}
-      <img src={image.src} crossorigin="anonymous" referrerpolicy="no-referrer" {...image.attributes} />
+      <img
+        src={image.src}
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+        style={placeholderColor ? `background-color: ${placeholderColor};` : undefined}
+        {...image.attributes}
+      />
     </picture>
   )
 }

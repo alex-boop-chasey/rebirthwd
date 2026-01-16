@@ -17,4 +17,21 @@ const isProd = import.meta.env.PROD;
   />
 )}
 
+<!--
+  To preload hero images for better LCP, add a preload link in your page's head slot:
+
+  Example in your page:
+  <Layout>
+    <Fragment slot="head">
+      <link
+        rel="preload"
+        as="image"
+        href="/path/to/hero-image.jpg"
+        type="image/webp"
+        fetchpriority="high"
+      />
+    </Fragment>
+  </Layout>
+-->
+
 <link rel="sitemap" href={getAsset('/sitemap-index.xml')} />
