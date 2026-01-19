@@ -25,6 +25,7 @@ const whenExternalScripts = (items: (() => AstroIntegration) | (() => AstroInteg
 
 export default defineConfig({
   site: 'https://rebirthwebdesign.com.au',
+  trailingSlash: 'always',
   adapter: cloudflare({
     platformProxy: {
       enabled: true,
@@ -33,6 +34,7 @@ export default defineConfig({
   }),
 
   build: {
+    format: 'directory',
     inlineStylesheets: 'always',
   },
 
