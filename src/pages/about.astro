@@ -6,7 +6,6 @@ import TechStack from '~/components/widgets/TechStack.astro';
 import Guarantee from '~/components/widgets/Guarantee.astro';
 import Layout from '~/layouts/PageLayout.astro';
 import LaptopVideoMockup from '~/components/widgets/LaptopVideoMockup.astro';
-import { Image } from 'astro:assets';
 import laptopMobile from '~/assets/images/about/laptop-mobile.webp';
 
 const metadata = {
@@ -37,11 +36,11 @@ const metadata = {
 
         <!-- Mobile: Static Image (< tablet) -->
         <div class="m-auto max-w-5xl md:hidden">
-          <Image
-            src={laptopMobile}
+          <img
+            src={laptopMobile.src}
             alt="Laptop displaying video"
             class="mx-auto rounded-md w-full"
-            widths={[400, 768]}
+            srcset={`${laptopMobile.src} 400w, ${laptopMobile.src} 768w`}
             sizes="(max-width: 767px) 400px, 768px"
             loading="eager"
             width={1500}

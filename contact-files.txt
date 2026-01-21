@@ -1,0 +1,1485 @@
+================================================================================
+ASTRO CONTACT FORM SETUP GUIDE - COMPLETE REFERENCE
+================================================================================
+
+This is a comprehensive guide for setting up a fully functional contact form
+in an Astro site using the Astrowind template with:
+- Resend for email delivery
+- Cloudflare Turnstile for spam protection
+- Cloudflare Pages for hosting
+- Enhanced error handling and validation
+
+Last Updated: 2026-01-04
+Site: https://rebirthwebdesign.com.au
+Status: Production Ready ✓
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+1. Prerequisites & Account Setup
+2. Dependencies Installation
+3. File Structure Overview
+4. Configuration Files (Complete Code)
+5. Component Files (Complete Code)
+6. API Route Implementation (Complete Code)
+7. Environment Variables Setup
+8. Cloudflare Configuration
+9. Resend Configuration
+10. Deployment Procedure
+11. Testing Checklist
+12. Troubleshooting Guide
+
+================================================================================
+1. PREREQUISITES & ACCOUNT SETUP
+================================================================================
+
+Before starting, create accounts and obtain API keys:
+
+A. Resend (Email Service)
+   - Sign up at: https://resend.com
+   - Verify your domain (see Section 9 for details)
+   - Get API key from: Dashboard → API Keys
+   - Keep API key safe (starts with re_...)
+
+B. Cloudflare Turnstile (Spam Protection)
+   - Sign up at: https://dash.cloudflare.com
+   - Go to: Turnstile section
+   - Create new site:
+     * Site name: Your Site Contact Form
+     * Domains: yourdomain.com, www.yourdomain.com
+     * Widget mode: Managed (recommended)
+   - Save Site Key (0x4AAAA...) and Secret Key
+
+C. Cloudflare Pages (Hosting)
+   - Connect GitHub repository
+   - Configure build settings:
+     * Build command: npm run build
+     * Build output: dist
+     * Root directory: /
+
+D. Gmail (or preferred email)
+   - Have destination email ready (e.g., hello@yourdomain.com)
+
+================================================================================
+2. DEPENDENCIES INSTALLATION
+================================================================================
+
+Required packages (should already be in Astrowind template):
+
+```bash
+npm install resend
+npm install @astrojs/cloudflare
+```
+
+Verify package.json includes:
+- "resend": "^3.x.x"
+- "@astrojs/cloudflare": "^11.x.x" (or latest)
+
+================================================================================
+3. FILE STRUCTURE OVERVIEW
+================================================================================
+
+Contact Form Files:
+├── src/
+│   ├── pages/
+│   │   ├── contact.astro                    # Contact page (form container)
+│   │   └── api/
+│   │       └── send-email.ts                # API endpoint (email handler)
+│   ├── components/
+│   │   ├── widgets/
+│   │   │   └── Contact.astro                # Form wrapper widget
+│   │   └── ui/
+│   │       ├── Form.astro                   # Form component (validation + submission)
+│   │       └── SuccessModal.astro           # Success modal
+│   ├── config.yaml                          # Site config (Turnstile settings)
+│   └── layouts/
+│       └── Layout.astro                     # Base layout (optional Turnstile preconnect)
+├── .env                                      # Environment variables (local)
+├── .dev.vars                                 # Cloudflare env vars (local)
+├── astro.config.ts                          # Astro config (Cloudflare adapter)
+└── functions/                                # (Optional fallback)
+    └── send-email.js                        # Cloudflare Pages Function
+
+================================================================================
+4. CONFIGURATION FILES (COMPLETE CODE)
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE: src/config.yaml
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```yaml
+site:
+  name: Your Site Name
+  site: 'https://yourdomain.com'
+  base: '/'
+  trailingSlash: false
+
+metadata:
+  title:
+    default: Your Site Name
+    template: '%s — Your Site Name'
+  description: "Your site description for SEO"
+  robots:
+    index: true
+    follow: true
+  openGraph:
+    site_name: Your Site Name
+    images:
+      - url: '~/assets/images/home/hero-image.webp'
+        width: 1200
+        height: 628
+    type: website
+
+# CRITICAL: Turnstile Configuration
+turnstile:
+  enabled: true
+  siteKey: '0x4AAAAAACKWGPNkksFcaeI9'  # YOUR TURNSTILE SITE KEY HERE
+```
+
+**Important:**
+- Replace siteKey with YOUR Turnstile site key
+- This is the PUBLIC key (safe to commit to git)
+- Secret key goes in environment variables (see Section 7)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE: astro.config.ts
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```typescript
+import { defineConfig } from 'astro/config';
+import cloudflare from '@astrojs/cloudflare';
+import sitemap from '@astrojs/sitemap';
+import tailwind from '@astrojs/tailwind';
+
+export default defineConfig({
+  // CRITICAL: Cloudflare adapter for runtime environment access
+  adapter: cloudflare({
+    platformProxy: {
+      enabled: true,  // Enables env access in local dev via .dev.vars
+    },
+    imageService: 'compile',
+  }),
+
+  integrations: [
+    tailwind({ applyBaseStyles: false }),
+    sitemap(),
+    // ... other integrations
+  ],
+});
+```
+
+**Why Cloudflare adapter:**
+- Provides `context.locals.runtime.env` for environment variables
+- Works in both local dev (.dev.vars) and production (Cloudflare env vars)
+- Required for API route to access RESEND_API_KEY, etc.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE: .env
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```env
+# Cloudflare Turnstile Secret Key (DO NOT commit to git - add to .gitignore)
+TURNSTILE_SECRET_KEY=0x4AAAAAACKWGNvzqNeQAzhtcymld4XD-jA
+
+# Resend API Key (DO NOT commit to git)
+RESEND_API_KEY=re_YourActualResendAPIKey
+
+# Destination email for form submissions
+CONTACT_EMAIL=hello@yourdomain.com
+```
+
+**Security Notes:**
+- Add .env to .gitignore (should already be there)
+- Never commit API keys to version control
+- Use different keys for dev/production if possible
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE: .dev.vars
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```env
+RESEND_API_KEY=re_YourActualResendAPIKey
+CONTACT_EMAIL=hello@yourdomain.com
+TURNSTILE_SECRET_KEY=0x4AAAAAACKWGNvzqNeQAzhtcymld4XD-jA
+```
+
+**Purpose:**
+- Used by Cloudflare's platformProxy in local development
+- Same values as .env (Cloudflare adapter prioritizes this file)
+- Required for `locals.runtime.env` access in dev
+- Add to .gitignore
+
+================================================================================
+5. COMPONENT FILES (COMPLETE CODE)
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE: src/pages/contact.astro
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```astro
+---
+import Layout from '~/layouts/PageLayout.astro';
+import Hero from '~/components/widgets/Hero.astro';
+import ContactUs from '~/components/widgets/Contact.astro';
+
+const metadata = {
+  title: 'Contact',
+};
+---
+
+<Layout metadata={metadata}>
+  <Hero
+    tagline="Contact"
+    title="Let's Connect!"
+    image={{ src: '~/assets/images/home/hero-image.webp', alt: 'Contact Us' }}
+  />
+
+  <ContactUs
+    id="form"
+    title="Drop us a message today!"
+    subtitle="For quicker answers, explore our FAQs section. If not, our support team is delighted to help you."
+    inputs={[
+      {
+        type: 'text',
+        name: 'name',
+        label: 'Name',
+      },
+      {
+        type: 'email',
+        name: 'email',
+        label: 'Email',
+      },
+    ]}
+    textarea={{
+      label: 'Message',
+    }}
+    disclaimer={{
+      label: 'By submitting this contact form, you acknowledge and agree to the collection of your personal information.',
+    }}
+    description="Our support team typically responds within 24 business hours."
+  />
+</Layout>
+```
+
+**Customize:**
+- Change inputs array to add/remove fields (phone, company, etc.)
+- Adjust title, subtitle, description as needed
+- Add more fields: `{ type: 'tel', name: 'phone', label: 'Phone' }`
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE: src/components/widgets/Contact.astro
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```astro
+---
+import FormContainer from '~/components/ui/Form.astro';
+import Headline from '~/components/ui/Headline.astro';
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import SuccessModal from '~/components/ui/SuccessModal.astro';
+import type { Contact as Props } from '~/types';
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
+  inputs,
+  textarea,
+  disclaimer,
+  button,
+  description,
+  id,
+  isDark = false,
+  classes = {},
+  bg = await Astro.slots.render('bg'),
+} = Astro.props;
+---
+
+<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-7xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
+  <Headline title={title} subtitle={subtitle} tagline={tagline} />
+
+  {
+    inputs && (
+      <div class="flex flex-col max-w-xl mx-auto rounded-lg backdrop-blur border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 shadow p-4 sm:p-6 lg:p-8 w-full">
+        <FormContainer
+          inputs={inputs}
+          textarea={textarea}
+          disclaimer={disclaimer}
+          button={button}
+          description={description}
+        />
+      </div>
+    )
+  }
+  <SuccessModal />
+</WidgetWrapper>
+```
+
+**Purpose:** Wrapper component that combines Form + SuccessModal
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE: src/components/ui/Form.astro (PART 1: Template)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```astro
+---
+import type { Form as Props } from '~/types';
+import Button from '~/components/ui/Button.astro';
+import { TURNSTILE } from 'astrowind:config';
+
+const { inputs, textarea, disclaimer, button = 'Contact us', description = '' } = Astro.props;
+const turnstileEnabled = TURNSTILE?.enabled;
+const turnstileSiteKey = TURNSTILE?.siteKey;
+
+console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
+---
+
+<!-- CRITICAL: data-astro-reload bypasses ViewTransitions for proper form submission -->
+<form id="contact-form" method="post" action="" novalidate data-astro-reload>
+  {
+    inputs &&
+      inputs.map(
+        ({ type = 'text', name, label = '', autocomplete = 'on', placeholder = '' }) =>
+          name && (
+            <div class="mb-6">
+              {label && (
+                <label for={name} class="block text-sm font-medium">
+                  {label}
+                </label>
+              )}
+              <div class="error-message hidden text-red-600 dark:text-red-400 text-sm mt-1 mb-2" data-error-for={name}></div>
+              <input
+                type={type}
+                name={name}
+                id={name}
+                autocomplete={autocomplete}
+                placeholder={placeholder}
+                required
+                class="py-3 px-4 block w-full text-md rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900"
+              />
+            </div>
+          )
+      )
+  }
+
+  {
+    textarea && (
+      <div class="mb-6">
+        <label for="textarea" class="block text-sm font-medium">
+          {textarea.label}
+        </label>
+        <div class="error-message hidden text-red-600 dark:text-red-400 text-sm mt-1 mb-2" data-error-for="textarea"></div>
+        <textarea
+          id="textarea"
+          name={textarea.name ? textarea.name : 'message'}
+          rows={textarea.rows ? textarea.rows : 4}
+          placeholder={textarea.placeholder}
+          required
+          class="py-3 px-4 block w-full text-md rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900"
+        />
+      </div>
+    )
+  }
+
+  {
+    disclaimer && (
+      <div class="mt-3">
+        <div class="error-message hidden text-red-600 dark:text-red-400 text-sm mb-2" data-error-for="disclaimer"></div>
+        <div class="flex items-start">
+          <div class="flex mt-0.5">
+            <input
+              id="disclaimer"
+              name="disclaimer"
+              type="checkbox"
+              required
+              class="cursor-pointer mt-1 py-3 px-4 block w-full text-md rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900"
+            />
+          </div>
+          <div class="ml-3">
+            <label for="disclaimer" class="cursor-pointer select-none text-sm text-gray-600 dark:text-gray-400">
+              {disclaimer.label}
+            </label>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  {/* TURNSTILE WIDGET - Implicit Rendering */}
+  {
+    turnstileEnabled && turnstileSiteKey && (
+      <div class="mt-6">
+        <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="auto"></div>
+      </div>
+    )
+  }
+
+  {
+    button && (
+      <div class="mt-10 grid">
+        <Button variant="primary" type="submit">
+          {button}
+        </Button>
+      </div>
+    )
+  }
+
+  {
+    description && (
+      <div class="mt-3 text-center">
+        <p class="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+      </div>
+    )
+  }
+</form>
+
+{/* TURNSTILE SCRIPT - Loads widget automatically */}
+{
+  turnstileEnabled && turnstileSiteKey && (
+    <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  )
+}
+```
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE: src/components/ui/Form.astro (PART 2: Validation & Submission Logic)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```astro
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('contact-form');
+    if (!form) {
+      console.error('Contact form not found');
+      return;
+    }
+    console.log('Contact form initialized');
+
+    // Clear all error messages
+    function clearErrors() {
+      const errorMessages = form.querySelectorAll('.error-message');
+      errorMessages.forEach(msg => {
+        msg.classList.add('hidden');
+        msg.textContent = '';
+      });
+
+      const inputs = form.querySelectorAll('input, textarea');
+      inputs.forEach(input => {
+        input.classList.remove('border-red-500', 'dark:border-red-500');
+      });
+    }
+
+    // Show error message for a specific field
+    function showError(fieldName, message) {
+      const errorDiv = form.querySelector(`[data-error-for="${fieldName}"]`);
+      const field = form.querySelector(`#${fieldName}`) || form.querySelector(`[name="${fieldName}"]`);
+
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+      }
+
+      if (field) {
+        field.classList.add('border-red-500', 'dark:border-red-500');
+        field.focus();
+      }
+    }
+
+    // Email validation regex
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    // Validate form on submit
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      console.log('Form submit intercepted');
+      clearErrors();
+
+      let isValid = true;
+      let firstErrorField = null;
+
+      // Get all form inputs
+      const inputs = form.querySelectorAll('input[required], textarea[required]');
+
+      inputs.forEach(input => {
+        const fieldName = input.name;
+        const fieldId = input.id;
+        const fieldType = input.type;
+        const fieldValue = input.value.trim();
+
+        // Check if field is empty
+        if (fieldType === 'checkbox') {
+          if (!input.checked) {
+            showError(fieldId, 'Please check this box to continue');
+            if (!firstErrorField) firstErrorField = input;
+            isValid = false;
+          }
+        } else if (fieldValue === '') {
+          const label = form.querySelector(`label[for="${fieldId}"]`)?.textContent || 'This field';
+          showError(fieldId, `${label} is required`);
+          if (!firstErrorField) firstErrorField = input;
+          isValid = false;
+        }
+        // Check email validity
+        else if (fieldType === 'email' && !isValidEmail(fieldValue)) {
+          showError(fieldId, 'Please enter a valid email address (e.g., user@example.com)');
+          if (!firstErrorField) firstErrorField = input;
+          isValid = false;
+        }
+      });
+
+      // If validation passes, submit to API
+      if (isValid) {
+        console.log('Validation passed, submitting form');
+
+        // Show loading state
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton?.textContent;
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.textContent = 'Sending...';
+        }
+
+        // Get form data
+        const formData = new FormData(form);
+        const formBody = new URLSearchParams(formData);
+
+        // Helper to show visible error on the form
+        function showFormError(message) {
+          const oldError = form.querySelector('#form-general-error');
+          if (oldError) oldError.remove();
+
+          const errorDiv = document.createElement('div');
+          errorDiv.id = 'form-general-error';
+          errorDiv.className = 'text-red-600 dark:text-red-400 text-sm mt-4 text-center font-medium';
+          errorDiv.textContent = message;
+
+          const submitButton = form.querySelector('button[type="submit"]');
+          if (submitButton && submitButton.parentNode) {
+            submitButton.parentNode.insertBefore(errorDiv, submitButton);
+          }
+        }
+
+        let submitted = false;
+
+        // Submit to API with robust error handling
+        (async function() {
+          try {
+            console.log('Submitting form to /api/send-email');
+            const response = await fetch('/api/send-email', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: formBody,
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+              console.log('Form submitted successfully:', result);
+
+              // Success - show modal and reset form
+              if (window.showSuccessModal) {
+                window.showSuccessModal();
+              } else {
+                alert('Thank you! Your message has been sent successfully.');
+              }
+              form.reset();
+              clearErrors();
+              submitted = true;
+            } else {
+              console.error('Form submission failed:', {
+                status: response.status,
+                statusText: response.statusText,
+                error: result.error || 'Unknown server error',
+                fullResponse: result,
+              });
+              showFormError('Sorry, something went wrong. Please try again later or email us directly.');
+            }
+          } catch (networkError) {
+            console.error('Network/fetch error during form submission:', {
+              message: networkError.message,
+              name: networkError.name,
+              stack: networkError.stack,
+            });
+            showFormError('Connection failed. Check your internet and try again.');
+          }
+
+          // Reset button state
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+          }
+        })();
+      } else {
+        console.log('Validation failed');
+        if (firstErrorField) {
+          firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    });
+
+    // Clear error on input
+    const allInputs = form.querySelectorAll('input, textarea');
+    allInputs.forEach(input => {
+      input.addEventListener('input', function() {
+        const fieldId = this.id;
+        const errorDiv = form.querySelector(`[data-error-for="${fieldId}"]`);
+        if (errorDiv && !errorDiv.classList.contains('hidden')) {
+          errorDiv.classList.add('hidden');
+          this.classList.remove('border-red-500', 'dark:border-red-500');
+        }
+      });
+
+      // For checkboxes, listen to change event
+      if (input.type === 'checkbox') {
+        input.addEventListener('change', function() {
+          const fieldId = this.id;
+          const errorDiv = form.querySelector(`[data-error-for="${fieldId}"]`);
+          if (errorDiv && !errorDiv.classList.contains('hidden')) {
+            errorDiv.classList.add('hidden');
+          }
+        });
+      }
+    });
+  });
+</script>
+```
+
+**Key Features:**
+- Client-side validation (required fields, email format)
+- Real-time error clearing on input
+- Loading state (button disabled, text changes to "Sending...")
+- Comprehensive error logging (console + visible on page)
+- Turnstile token automatically included in form submission
+- data-astro-reload prevents ViewTransitions interference
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE: src/components/ui/SuccessModal.astro
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```astro
+---
+// Success Modal Component for Contact Form
+---
+
+<div id="success-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+  <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-md w-full p-8 transform transition-all">
+    <!-- Success Icon -->
+    <div class="flex justify-center mb-4">
+      <div class="rounded-full bg-green-100 dark:bg-green-900 p-3">
+        <svg class="w-12 h-12 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <h3 class="text-2xl font-bold text-center mb-2 dark:text-white">Message Sent!</h3>
+    <p class="text-center text-gray-600 dark:text-gray-400 mb-6">
+      Thank you for reaching out. We've received your message and will get back to you within 24 hours.
+    </p>
+
+    <!-- Close Button -->
+    <button
+      id="close-modal-btn"
+      class="w-full py-3 px-4 bg-primary hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200"
+    >
+      Close
+    </button>
+  </div>
+</div>
+
+<script>
+  function setupSuccessModal() {
+    const modal = document.getElementById('success-modal');
+    const closeBtn = document.getElementById('close-modal-btn');
+
+    if (!modal || !closeBtn) return;
+
+    // Close modal function
+    const closeModal = () => {
+      modal?.classList.add('hidden');
+      document.body.style.overflow = '';
+    };
+
+    // Close button click
+    closeBtn.addEventListener('click', closeModal);
+
+    // Close on outside click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal?.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+
+    // Export function to show modal (called from Form.astro)
+    (window as any).showSuccessModal = () => {
+      modal?.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    };
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupSuccessModal);
+  } else {
+    setupSuccessModal();
+  }
+</script>
+```
+
+**Features:**
+- Shows on successful form submission
+- Closes on: Close button, outside click, or Escape key
+- Prevents body scroll when open
+- Exposed `window.showSuccessModal()` for Form.astro to call
+
+================================================================================
+6. API ROUTE IMPLEMENTATION (COMPLETE CODE)
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FILE: src/pages/api/send-email.ts
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```typescript
+import type { APIRoute } from 'astro';
+import { Resend } from 'resend';
+
+export const prerender = false;  // CRITICAL: Ensure dynamic rendering
+
+export const POST: APIRoute = async (context) => {
+  const { request, locals } = context;
+
+  // CLOUDFLARE ENV ACCESS (works local with platformProxy and prod)
+  const runtime = locals.runtime;
+  const RESEND_API_KEY = runtime.env.RESEND_API_KEY as string | undefined;
+  const CONTACT_EMAIL = runtime.env.CONTACT_EMAIL as string | undefined;
+  const TURNSTILE_SECRET_KEY = runtime.env.TURNSTILE_SECRET_KEY as string | undefined;
+
+  console.log('Environment check:', {
+    hasResendKey: !!RESEND_API_KEY,
+    hasContactEmail: !!CONTACT_EMAIL,
+    hasTurnstileKey: !!TURNSTILE_SECRET_KEY,
+  });
+
+  if (!RESEND_API_KEY || !CONTACT_EMAIL) {
+    return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // FORMDATA PARSING with fallback
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch (error) {
+    console.error('formData failed, falling back to text parse:', error);
+    const text = await request.text();
+    formData = new FormData();
+    new URLSearchParams(text).forEach((value, key) => formData.append(key, value));
+  }
+
+  const name = formData.get('name') as string | null;
+  const email = formData.get('email') as string | null;
+  const message = formData.get('message') as string | null;
+  const turnstileToken = formData.get('cf-turnstile-response') as string | null;
+
+  console.log('Form data received:', { name, email, hasMessage: !!message, hasTurnstileToken: !!turnstileToken });
+
+  if (!name || !email || !message || !turnstileToken) {
+    return new Response(JSON.stringify({ error: 'Missing fields or Turnstile token' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // TURNSTILE SERVER-SIDE VERIFICATION
+  if (TURNSTILE_SECRET_KEY) {
+    const verifyResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        secret: TURNSTILE_SECRET_KEY,
+        response: turnstileToken,
+        remoteip: request.headers.get('CF-Connecting-IP') || '',
+      }),
+    });
+
+    const verifyResult = await verifyResponse.json() as { success: boolean };
+
+    if (!verifyResult.success) {
+      return new Response(JSON.stringify({ error: 'Turnstile verification failed' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+  }
+
+  // SEND EMAIL VIA RESEND
+  const resend = new Resend(RESEND_API_KEY);
+
+  const { error } = await resend.emails.send({
+    from: 'Your Site Name <hello@yourdomain.com>',  // UPDATE: Use YOUR verified domain
+    to: [CONTACT_EMAIL],
+    subject: `New contact form message from ${name}`,
+    reply_to: email,  // Allows easy reply to customer
+    html: `
+      <p><strong>From:</strong> ${name} (${email})</p>
+      <p><strong>Message:</strong></p>
+      <p>${message.replace(/\n/g, '<br>')}</p>
+    `,
+  });
+
+  if (error) {
+    console.error('Resend API error:', {
+      message: error.message,
+      name: error.name,
+      statusCode: error.statusCode,
+      raw: error,
+    });
+    return new Response(JSON.stringify({ error: 'Failed to send email' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  return new Response(JSON.stringify({ success: true }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
+};
+```
+
+**CRITICAL NOTES:**
+1. `prerender = false`: Ensures this route is dynamic (not pre-rendered at build time)
+2. `locals.runtime.env`: Cloudflare adapter provides this for env access
+3. Turnstile verification: Server-side check to prevent bot submissions
+4. `reply_to: email`: Allows easy responses to customers from your inbox
+5. Error logging: Enhanced logging for debugging production issues
+
+**UPDATE BEFORE DEPLOYING:**
+- Line 78: Change `from` to YOUR verified domain email
+- Verify all env vars are set in Cloudflare Pages dashboard
+
+================================================================================
+7. ENVIRONMENT VARIABLES SETUP
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LOCAL DEVELOPMENT SETUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Create two files in project root:
+
+1. .env (add to .gitignore)
+```env
+TURNSTILE_SECRET_KEY=0x4AAAAAACKWGNvzqNeQAzhtcymld4XD-jA
+RESEND_API_KEY=re_YourActualResendAPIKey
+CONTACT_EMAIL=hello@yourdomain.com
+```
+
+2. .dev.vars (add to .gitignore)
+```env
+RESEND_API_KEY=re_YourActualResendAPIKey
+CONTACT_EMAIL=hello@yourdomain.com
+TURNSTILE_SECRET_KEY=0x4AAAAAACKWGNvzqNeQAzhtcymld4XD-jA
+```
+
+**Why both files?**
+- .env: Standard Astro environment variables
+- .dev.vars: Cloudflare platformProxy specifically reads this file
+- Cloudflare adapter prioritizes .dev.vars in local dev
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRODUCTION SETUP (Cloudflare Pages Dashboard)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Go to: Cloudflare Dashboard → Workers & Pages → Your Project
+2. Click: Settings → Environment variables
+3. Add these three variables (for Production AND Preview):
+
+Variable Name              | Value
+---------------------------|----------------------------------
+RESEND_API_KEY            | re_YourActualResendAPIKey
+CONTACT_EMAIL             | hello@yourdomain.com
+TURNSTILE_SECRET_KEY      | 0x4AAAAAACKWGNvzqNeQAzhtcymld4XD-jA
+
+4. Click "Save"
+5. Redeploy site (new deployments will use these vars)
+
+**Security Best Practices:**
+- Never commit .env or .dev.vars to version control
+- Use different API keys for dev/production if possible
+- Rotate keys periodically
+- Monitor usage in Resend dashboard
+
+================================================================================
+8. CLOUDFLARE CONFIGURATION
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+A. TURNSTILE SETUP (Spam Protection)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Create Turnstile Site:
+   - Go to: https://dash.cloudflare.com → Turnstile
+   - Click: "Add Site"
+   - Site name: "Your Site Contact Form"
+   - Domains:
+     * yourdomain.com
+     * www.yourdomain.com
+     * localhost (for local testing - optional)
+   - Widget Mode: Managed (recommended)
+   - Click: "Create"
+
+2. Copy Keys:
+   - Site Key (PUBLIC): Starts with 0x4AAAA... → Goes in config.yaml
+   - Secret Key (PRIVATE): Starts with 0x4AAAA... → Goes in .env/.dev.vars
+
+3. Add to config.yaml:
+```yaml
+turnstile:
+  enabled: true
+  siteKey: '0x4AAAAAACKWGPNkksFcaeI9'  # YOUR SITE KEY
+```
+
+4. Add Secret Key to Environment Variables (see Section 7)
+
+**Important:**
+- Site key is public (safe to commit)
+- Secret key is private (NEVER commit to git)
+- If Turnstile shows "Invalid domain", verify:
+  * Your domain is in allowed domains list
+  * Using correct site key in config.yaml
+  * Domain matches exactly (check www prefix)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+B. CLOUDFLARE PAGES SETUP (Hosting)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Connect Repository:
+   - Go to: Cloudflare Dashboard → Workers & Pages
+   - Click: "Create application" → "Pages" → "Connect to Git"
+   - Authorize GitHub
+   - Select your repository
+
+2. Build Settings:
+   - Framework preset: Astro
+   - Build command: `npm run build`
+   - Build output directory: `dist`
+   - Root directory: `/` (or your project folder)
+
+3. Environment Variables:
+   - Add all three variables (see Section 7)
+   - Apply to both "Production" and "Preview" environments
+
+4. Deploy:
+   - Click "Save and Deploy"
+   - Wait for build to complete (~2-3 minutes)
+   - Site will be available at: yourproject.pages.dev
+
+5. Custom Domain (Optional):
+   - Settings → Custom domains → Add custom domain
+   - Enter: yourdomain.com
+   - Follow DNS setup instructions
+   - Add www.yourdomain.com as well
+
+================================================================================
+9. RESEND CONFIGURATION
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+A. DOMAIN VERIFICATION (CRITICAL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**Why verify domain?**
+- `onboarding@resend.dev` (default) has poor deliverability to Gmail/Outlook
+- Verified domain emails are more likely to reach inbox (not spam)
+- Professional sender address (hello@yourdomain.com vs onboarding@resend.dev)
+
+**Steps:**
+
+1. Go to: https://resend.com/domains
+2. Click: "Add Domain"
+3. Enter: yourdomain.com (NOT mail.yourdomain.com, just main domain)
+4. Click: "Add"
+
+5. DNS Configuration (TWO OPTIONS):
+
+   **OPTION A: Cloudflare Auto-Verify (EASIEST)**
+   - If your domain uses Cloudflare DNS, Resend will show:
+     "Sign in to Cloudflare" button
+   - Click it → Authorize → Resend automatically adds DNS records
+   - Wait 1-2 minutes → Status changes to "Verified" ✓
+
+   **OPTION B: Manual DNS Records**
+   - Copy the 3 DNS records shown by Resend:
+     * SPF record (TXT)
+     * DKIM record (TXT)
+     * DMARC record (TXT) - optional but recommended
+   - Go to your DNS provider (Cloudflare, GoDaddy, etc.)
+   - Add each record exactly as shown
+   - Return to Resend → Click "Verify DNS Records"
+   - Wait 5-30 minutes for propagation
+   - Status should change to "Verified" ✓
+
+6. Update API Route:
+   - In `src/pages/api/send-email.ts` line 78:
+   - Change: `from: 'Your Site Name <hello@yourdomain.com>'`
+   - Use YOUR verified domain email
+
+**Verification Troubleshooting:**
+- DNS changes can take 5-30 minutes to propagate
+- Use https://dnschecker.org to verify DNS records are live
+- Ensure SPF/DKIM records match exactly (case-sensitive)
+- Common issues:
+  * Wrong subdomain (use yourdomain.com, not mail.yourdomain.com)
+  * Extra quotes in TXT record value
+  * TTL too high (set to 3600 or auto)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+B. API KEY SETUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Go to: https://resend.com/api-keys
+2. Click: "Create API Key"
+3. Name: "Production Contact Form" (or similar)
+4. Permissions: "Sending access" (default)
+5. Copy the API key (starts with re_...)
+6. **IMPORTANT:** Save it immediately - you can't view it again!
+7. Add to:
+   - .env and .dev.vars (local)
+   - Cloudflare Pages environment variables (production)
+
+**Security:**
+- Never commit API key to git
+- Use different keys for dev/production environments if possible
+- Rotate keys periodically (every 6-12 months)
+- If leaked, revoke immediately and create new one
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+C. SENDER CONFIGURATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Update `src/pages/api/send-email.ts` line 78:
+
+```typescript
+from: 'Your Business Name <hello@yourdomain.com>',
+```
+
+**Best Practices:**
+- Use friendly sender name: "Your Business Name" (not "Contact Form")
+- Use professional email: hello@, contact@, or info@
+- Must match verified domain
+- Avoid noreply@ (reduces trust, harder to reply)
+
+**Examples:**
+- Good: `'Rebirth Web Design <hello@rebirthwebdesign.com.au>'`
+- Good: `'Acme Support <support@acme.com>'`
+- Bad: `'Contact Form <noreply@domain.com>'`
+- Bad: `'onboarding@resend.dev'` (test only, poor deliverability)
+
+================================================================================
+10. DEPLOYMENT PROCEDURE
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INITIAL DEPLOYMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Prerequisites Checklist:
+   □ Resend domain verified
+   □ Resend API key obtained
+   □ Turnstile site created (site key + secret key)
+   □ GitHub repository created
+   □ All environment variables documented
+
+2. Update Configuration:
+   □ config.yaml: Update site URL, Turnstile site key
+   □ src/pages/api/send-email.ts: Update 'from' email to verified domain
+   □ .env and .dev.vars: Add all three environment variables
+
+3. Test Locally:
+   ```bash
+   npm install
+   npm run dev
+   ```
+   - Visit http://localhost:4321/contact
+   - Check console for Turnstile config log
+   - Note: Turnstile will show "Invalid domain" locally (normal if not configured for localhost)
+   - Form submission will work but Turnstile verification may fail
+
+4. Commit and Push:
+   ```bash
+   git add .
+   git commit -m "Add contact form with Resend + Turnstile"
+   git push origin main
+   ```
+
+5. Cloudflare Pages Setup:
+   - Connect repository (see Section 8B)
+   - Add environment variables (Section 7)
+   - Deploy
+
+6. Post-Deployment:
+   - Wait for build to complete
+   - Visit https://yourproject.pages.dev/contact
+   - Turnstile should render correctly (no "Invalid domain")
+   - Submit test form
+   - Check:
+     * Browser console for success log
+     * Resend dashboard (https://resend.com/emails) for sent email
+     * Destination email inbox (check spam if not in inbox)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+UPDATES & REDEPLOYMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For code changes:
+1. Make changes locally
+2. Test with `npm run dev`
+3. Commit and push
+4. Cloudflare Pages auto-deploys on push to main branch
+
+For environment variable changes:
+1. Update in Cloudflare Pages dashboard (Section 7)
+2. Redeploy (Settings → Deployments → Retry deployment)
+
+For domain changes:
+1. Update Turnstile allowed domains
+2. Update Resend verified domain
+3. Update config.yaml site URL
+4. Redeploy
+
+================================================================================
+11. TESTING CHECKLIST
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PRE-DEPLOYMENT TESTING (Local)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Form renders correctly
+□ All fields visible (name, email, message, disclaimer)
+□ Turnstile widget appears (may show "Invalid domain" - normal locally)
+□ Submit button present
+
+□ Client-side validation works:
+  - Empty name → Error message appears above name field
+  - Empty email → Error message appears above email field
+  - Invalid email (e.g., "test") → "Please enter a valid email" error
+  - Empty message → Error message appears above message field
+  - Unchecked disclaimer → Error message appears
+
+□ Error messages clear on input
+
+□ Console logs:
+  - "Turnstile config: { turnstileEnabled: true, turnstileSiteKey: '0x4A...' }"
+  - "Contact form initialized"
+  - "Form submit intercepted" on submit
+
+□ Button loading state:
+  - Text changes to "Sending..." on submit
+  - Button disabled during submission
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+POST-DEPLOYMENT TESTING (Production)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Visit https://yourdomain.com/contact
+□ Turnstile widget renders (NO "Invalid domain" error)
+□ Complete Turnstile challenge (checkbox or automatic)
+
+□ Submit valid form:
+  - Fill all fields with valid data
+  - Complete Turnstile
+  - Click submit
+
+□ Check browser console:
+  - "Validation passed, submitting form"
+  - "Submitting form to /api/send-email"
+  - "Form submitted successfully: { success: true }"
+
+□ Success modal appears:
+  - Green checkmark icon
+  - "Message Sent!" title
+  - Thank you message
+  - Close button works
+
+□ Form resets after success (all fields cleared)
+
+□ Check email delivery:
+  - Resend dashboard (https://resend.com/emails) shows sent email
+  - Destination inbox receives email
+  - Subject: "New contact form message from [name]"
+  - From: Your Business Name <hello@yourdomain.com>
+  - Reply-to: [user's email from form]
+  - Email content includes name, email, message
+
+□ Test error scenarios:
+  - Submit with empty fields → Field-specific errors appear
+  - Submit with invalid email → Email format error
+  - Check network tab shows POST to /api/send-email
+  - If API error, error message appears on page
+
+□ Cross-browser testing:
+  - Chrome, Firefox, Safari, Edge
+  - Mobile browsers (iOS Safari, Chrome Mobile)
+
+□ Mobile responsiveness:
+  - Form displays correctly on mobile
+  - Turnstile widget fits screen
+  - Error messages readable
+  - Success modal responsive
+
+================================================================================
+12. TROUBLESHOOTING GUIDE
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMMON ISSUES & SOLUTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ISSUE: "Invalid domain" on Turnstile widget
+CAUSE: Domain not in Turnstile allowed domains list
+FIX:
+  1. Go to Cloudflare Dashboard → Turnstile → Your Site
+  2. Click Settings
+  3. Add domain to allowed list:
+     - yourdomain.com
+     - www.yourdomain.com
+  4. Save changes
+  5. Clear browser cache, reload page
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ISSUE: Page refreshes on form submit (no AJAX)
+CAUSE: ViewTransitions interfering with form submission
+FIX:
+  - Ensure `data-astro-reload` attribute on <form> tag (Form.astro line 13)
+  - This bypasses ViewTransitions for the form
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ISSUE: "Server configuration error" response
+CAUSE: Environment variables not loaded
+DEBUG:
+  1. Check terminal for "Environment check" log
+  2. If hasResendKey: false or hasContactEmail: false:
+
+     LOCAL:
+     - Verify .dev.vars exists in project root
+     - Verify RESEND_API_KEY and CONTACT_EMAIL values
+     - Restart dev server: npm run dev
+
+     PRODUCTION:
+     - Check Cloudflare Pages → Settings → Environment variables
+     - Ensure RESEND_API_KEY and CONTACT_EMAIL are set
+     - Redeploy site
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ISSUE: "Turnstile verification failed" (403 error)
+CAUSE: Turnstile server-side verification failing
+DEBUG:
+  1. Check TURNSTILE_SECRET_KEY is set in environment variables
+  2. Verify secret key matches site (Cloudflare Dashboard → Turnstile)
+  3. Check browser console for Turnstile token in form data
+  4. If token missing, Turnstile widget may not be rendering
+  5. Local dev: Turnstile may fail if domain not configured for localhost
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ISSUE: Email not received
+CAUSE: Multiple possible reasons
+DEBUG:
+  1. Check Resend dashboard (https://resend.com/emails):
+     - If email appears with status "Sent" → Check spam folder
+     - If status "Bounced" → Check destination email is valid
+     - If status "Failed" → Check error message
+     - If no email appears → API call may have failed
+
+  2. Check browser console:
+     - "Form submitted successfully" → API worked, issue is email delivery
+     - Error logged → API failed, check error message
+
+  3. Check terminal logs (production: Cloudflare Pages logs):
+     - "Resend API error" → See error details
+     - Common errors:
+       * Domain not verified: Verify domain in Resend
+       * Invalid API key: Check RESEND_API_KEY value
+       * Rate limit exceeded: Using free tier? Wait or upgrade
+
+  4. Check sender domain:
+     - In send-email.ts, 'from' field must use VERIFIED domain
+     - Using onboarding@resend.dev? → Poor deliverability, verify domain
+
+  5. Check spam folder:
+     - New sender domains often go to spam initially
+     - Ask recipient to mark as "Not Spam" to improve future delivery
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ISSUE: "The [domain] is not verified" error from Resend
+CAUSE: Sending from unverified domain
+FIX:
+  1. Verify domain in Resend (see Section 9A)
+  2. Wait for DNS propagation (5-30 minutes)
+  3. Update 'from' field in send-email.ts to use verified domain:
+     from: 'Your Name <hello@verifieddomain.com>'
+  4. Redeploy
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ISSUE: TypeScript error "File .astro/types.d.ts not found"
+CAUSE: Astro types not generated
+FIX:
+  1. Delete .astro directory: rm -rf .astro
+  2. Restart dev server: npm run dev
+  3. Astro will regenerate types automatically
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ISSUE: Success modal doesn't appear
+CAUSE: Modal script not loaded or showSuccessModal not defined
+DEBUG:
+  1. Check browser console for JavaScript errors
+  2. Verify SuccessModal.astro is imported in Contact.astro
+  3. Check window.showSuccessModal is defined:
+     - Open console, type: window.showSuccessModal
+     - Should show: [Function]
+  4. Try calling manually: window.showSuccessModal()
+  5. If modal appears → Issue is in Form.astro success handler
+  6. If modal doesn't appear → Issue is in SuccessModal.astro script
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ISSUE: Build fails on Cloudflare Pages
+CAUSE: Multiple possible reasons
+DEBUG:
+  1. Check build logs in Cloudflare Pages dashboard
+  2. Common errors:
+
+     "Cannot find module 'resend'":
+     - Check package.json includes "resend"
+     - Check package-lock.json is committed
+     - Ensure npm install runs in build
+
+     "prerender false not working":
+     - Verify astro.config.ts has cloudflare adapter
+     - Check export const prerender = false in send-email.ts
+
+     "Environment variable not found":
+     - This is just a warning, won't fail build
+     - Set variables in Cloudflare Pages dashboard
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ISSUE: Form works locally but fails in production
+CAUSE: Environment variable mismatch
+DEBUG:
+  1. Verify ALL three environment variables set in Cloudflare Pages:
+     - RESEND_API_KEY
+     - CONTACT_EMAIL
+     - TURNSTILE_SECRET_KEY
+
+  2. Check they're set for correct environment:
+     - Production (for live site)
+     - Preview (for preview deployments)
+
+  3. Redeploy after adding environment variables
+
+  4. Check Cloudflare Pages Functions logs:
+     - Settings → Functions → Logs
+     - Look for "Environment check" log with values
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DEBUGGING TIPS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Browser Console Logs:
+   - Open DevTools (F12) → Console tab
+   - Look for:
+     * "Turnstile config" → Verifies Turnstile loaded
+     * "Contact form initialized" → Form script loaded
+     * "Validation passed" → Client validation worked
+     * "Form submitted successfully" → API call succeeded
+     * Red errors → Something failed
+
+2. Network Tab:
+   - DevTools → Network tab
+   - Submit form, look for POST to /api/send-email
+   - Click request → Preview/Response tabs → See API response
+   - Status codes:
+     * 200 → Success
+     * 400 → Missing fields or validation failed
+     * 403 → Turnstile verification failed
+     * 500 → Server error (check terminal/logs)
+
+3. Terminal Logs (Local Dev):
+   - npm run dev terminal output shows:
+     * "Environment check" → Verifies env vars loaded
+     * "Form data received" → API received form submission
+     * "Resend API error" → Email sending failed
+
+4. Cloudflare Pages Logs (Production):
+   - Dashboard → Your Project → Functions → View logs
+   - Real-time logs show console.log output from API route
+
+5. Resend Dashboard:
+   - https://resend.com/emails
+   - Shows all sent emails, status, delivery info
+   - Click email → View full details, delivery status, errors
+
+================================================================================
+QUICK REFERENCE CHECKLIST
+================================================================================
+
+Setup new Astro contact form in 15 steps:
+
+□ 1. Create Resend account → Get API key
+□ 2. Verify domain in Resend (use Cloudflare auto-verify if possible)
+□ 3. Create Turnstile site → Get site key + secret key
+□ 4. Install dependencies: npm install resend @astrojs/cloudflare
+□ 5. Update astro.config.ts with Cloudflare adapter
+□ 6. Create .env and .dev.vars with three environment variables
+□ 7. Update config.yaml with Turnstile site key and site URL
+□ 8. Copy Form.astro, SuccessModal.astro to project
+□ 9. Copy Contact.astro widget
+□ 10. Create contact.astro page
+□ 11. Create src/pages/api/send-email.ts (update 'from' email)
+□ 12. Test locally: npm run dev → http://localhost:4321/contact
+□ 13. Push to GitHub
+□ 14. Connect to Cloudflare Pages, add environment variables
+□ 15. Deploy → Test on live site
+
+================================================================================
+END OF GUIDE
+================================================================================
+
+This guide provides complete instructions for setting up a production-ready
+contact form with Resend, Cloudflare Turnstile, and Cloudflare Pages hosting.
+
+For issues not covered here, check:
+- Resend docs: https://resend.com/docs
+- Cloudflare Turnstile docs: https://developers.cloudflare.com/turnstile
+- Astro docs: https://docs.astro.build
+- Cloudflare Pages docs: https://developers.cloudflare.com/pages
+
+Questions? Check browser console, terminal logs, and Resend dashboard first.

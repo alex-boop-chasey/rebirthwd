@@ -223,6 +223,19 @@ export const astroAssetsOptimizer: ImagesOptimizer = async (
     return [];
   }
 
+  // In dev mode, bypass getImage() to avoid /_image endpoint issues with Cloudflare adapter
+  if (import.meta.env.DEV) {
+    const src = typeof image === 'string' ? image : image.src;
+    const imgWidth = typeof image === 'string' ? _width : image.width;
+    const imgHeight = typeof image === 'string' ? _height : image.height;
+
+    return breakpoints.map((w: number) => ({
+      src,
+      width: imgWidth ?? w,
+      height: imgHeight,
+    }));
+  }
+
   return Promise.all(
     breakpoints.map(async (w: number) => {
       const result = await getImage({ src: image, width: w, inferSize: true, ...(format ? { format: format } : {}) });

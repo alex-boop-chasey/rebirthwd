@@ -1,5 +1,4 @@
 ---
-import { Image } from 'astro:assets';
 import laptopFrame from '~/assets/images/about/laptop.webp';
 
 interface Props {
@@ -16,11 +15,11 @@ const { muxPlaybackId, class: className = '' } = Astro.props;
 <div class={`m-auto max-w-5xl ${className}`}>
   <div class="laptop-container">
     <!-- Laptop frame as base (bottom layer) -->
-    <Image
-      src={laptopFrame}
+    <img
+      src={laptopFrame.src}
       alt="Laptop frame"
       class="laptop-frame-base"
-      widths={[400, 768, 1024, 2040]}
+      srcset={`${laptopFrame.src} 400w, ${laptopFrame.src} 768w, ${laptopFrame.src} 1024w, ${laptopFrame.src} 2040w`}
       sizes="(max-width: 767px) 400px, (max-width: 1023px) 768px, (max-width: 2039px) 1024px, 2040px"
       loading="eager"
       width={1500}

@@ -1,6 +1,5 @@
 ---
 import { Icon } from 'astro-icon/components';
-import { Image } from 'astro:assets';
 import { SITE } from 'astrowind:config';
 import { getHomePermalink } from '~/utils/permalinks';
 import logo from '~/assets/images/logo/logo.webp';
@@ -40,8 +39,8 @@ const { socialLinks = [], secondaryLinks = [], links = [], footNote = '', theme 
       <div class="col-span-12 lg:col-span-4">
         <div class="mb-2">
           <a class="inline-flex items-center gap-1 font-bold text-2xl" href={getHomePermalink()}>
-            <Image
-              src={logo}
+            <img
+              src={logo.src}
               alt="Rebirth"
               class="h-8 w-auto"
               width={200}
