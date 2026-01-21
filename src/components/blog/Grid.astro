@@ -7,8 +7,110 @@ export interface Props {
 }
 
 const { posts } = Astro.props;
+
+const uniqueId = `blog-swiper-${Math.random().toString(36).substr(2, 9)}`;
 ---
 
-<div class="grid gap-6 row-gap-5 md:grid-cols-2 lg:grid-cols-4 -mb-6">
-  {posts.map((post) => <Item post={post} />)}
-</div>
+{
+  posts && posts.length > 0 && (
+    <div class="blog-grid-wrapper">
+      {/* Mobile swipe carousel - visible only below sm breakpoint */}
+      <div class="sm:hidden">
+        <div
+          id={uniqueId}
+          class="blog-mobile-swipe-container flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-4 pb-4 -mx-4 px-4"
+        >
+          {posts.map((post) => (
+            <div class="blog-mobile-swipe-card flex-shrink-0 w-full snap-center">
+              <Item post={post} />
+            </div>
+          ))}
+        </div>
+        {/* Pagination dots - purely visual indicators */}
+        <div class="blog-pagination-dots flex justify-center gap-2 mt-4" data-swiper-id={uniqueId}>
+          {posts.map((_, index) => (
+            <span
+              class={`blog-pagination-dot w-2 h-2 rounded-full transition-all duration-300 ${
+                index === 0 ? 'bg-primary scale-125' : 'bg-gray-300 dark:bg-gray-600'
+              }`}
+              data-index={index}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop grid - hidden on mobile, shown from sm breakpoint up */}
+      <div class="hidden sm:grid gap-6 row-gap-5 md:grid-cols-2 lg:grid-cols-4 -mb-6">
+        {posts.map((post) => <Item post={post} />)}
+      </div>
+    </div>
+  )
+}
+
+<style>
+  /* Hide scrollbar for mobile swipe container */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+
+<script>
+  function initBlogSwipeCarousels() {
+    const containers = document.querySelectorAll('.blog-mobile-swipe-container');
+
+    containers.forEach((container) => {
+      const id = container.id;
+      const dotsContainer = document.querySelector(`[data-swiper-id="${id}"]`);
+      if (!dotsContainer) return;
+
+      const dots = dotsContainer.querySelectorAll('.blog-pagination-dot');
+      const cards = container.querySelectorAll('.blog-mobile-swipe-card');
+
+      if (cards.length === 0) return;
+
+      const updateDots = () => {
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
+
+        let activeIndex = 0;
+        let minDistance = Infinity;
+
+        cards.forEach((card, index) => {
+          const cardRect = card.getBoundingClientRect();
+          const cardCenter = cardRect.left + cardRect.width / 2;
+          const distance = Math.abs(containerCenter - cardCenter);
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            activeIndex = index;
+          }
+        });
+
+        dots.forEach((dot, index) => {
+          if (index === activeIndex) {
+            dot.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+            dot.classList.add('bg-primary', 'scale-125');
+          } else {
+            dot.classList.remove('bg-primary', 'scale-125');
+            dot.classList.add('bg-gray-300', 'dark:bg-gray-600');
+          }
+        });
+      };
+
+      container.addEventListener('scroll', updateDots, { passive: true });
+
+      // Initial update
+      updateDots();
+    });
+  }
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', initBlogSwipeCarousels);
+
+  // Re-initialize on Astro page transitions (if using View Transitions)
+  document.addEventListener('astro:page-load', initBlogSwipeCarousels);
+</script>

@@ -14,53 +14,176 @@ const {
   description: descriptionClass = '',
   icon: defaultIconClass = 'text-primary',
 } = classes;
+
+const uniqueId = `swiper-${Math.random().toString(36).substr(2, 9)}`;
 ---
 
 {
   items && items.length > 0 && (
-    <div
-      class={twMerge(
-        `grid gap-8 gap-x-12 sm:gap-y-8 ${
-          columns === 4
-            ? 'lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2'
-            : columns === 3
-              ? 'lg:grid-cols-3 sm:grid-cols-2'
-              : columns === 2
-                ? 'sm:grid-cols-2 '
-                : ''
-        }`,
-        containerClass
-      )}
-    >
-      {items.map(({ title, description, icon, callToAction, classes: itemClasses = {}, href }) => {
-        const TileWrapper = href ? 'a' : 'div';
-        const tileProps = href ? { href } : {};
+    <div class="item-grid-wrapper">
+      {/* Mobile swipe carousel - visible only on mobile */}
+      <div class="sm:hidden">
+        <div
+          id={uniqueId}
+          class="mobile-swipe-container flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-4 pb-4 -mx-4 px-4"
+        >
+          {items.map(({ title, description, icon, callToAction, classes: itemClasses = {}, href }) => {
+            const TileWrapper = href ? 'a' : 'div';
+            const tileProps = href ? { href } : {};
 
-        return (
-          <TileWrapper
-            {...tileProps}
-            class={twMerge(
-              'relative flex flex-col intersect-once intersect-quarter intersect-no-queue motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade',
-              href && 'cursor-pointer transition-all duration-200 hover:scale-105 hover:outline hover:outline-2 hover:outline-white',
-              panelClass,
-              itemClasses?.panel
-            )}
-          >
-            {(icon || defaultIcon) && (
-              <Icon name={icon || defaultIcon} class={twMerge('mb-2 w-10 h-10', defaultIconClass, itemClasses?.icon)} />
-            )}
-            <div class={twMerge('text-xl font-bold', titleClass, itemClasses?.title)}>{title}</div>
-            {description && (
-              <p class={twMerge('text-muted mt-2', descriptionClass, itemClasses?.description)} set:html={description} />
-            )}
-            {callToAction && (
-              <div class="mt-2">
-                <Button {...callToAction} />
-              </div>
-            )}
-          </TileWrapper>
-        );
-      })}
+            return (
+              <TileWrapper
+                {...tileProps}
+                class={twMerge(
+                  'mobile-swipe-card relative flex flex-col flex-shrink-0 w-full snap-center',
+                  href && 'cursor-pointer',
+                  panelClass,
+                  itemClasses?.panel
+                )}
+              >
+                {(icon || defaultIcon) && (
+                  <Icon name={icon || defaultIcon} class={twMerge('mb-2 w-10 h-10', defaultIconClass, itemClasses?.icon)} />
+                )}
+                <div class={twMerge('text-xl font-bold', titleClass, itemClasses?.title)}>{title}</div>
+                {description && (
+                  <p class={twMerge('text-muted mt-2', descriptionClass, itemClasses?.description)} set:html={description} />
+                )}
+                {callToAction && (
+                  <div class="mt-2">
+                    <Button {...callToAction} />
+                  </div>
+                )}
+              </TileWrapper>
+            );
+          })}
+        </div>
+        {/* Pagination dots */}
+        <div class="pagination-dots flex justify-center gap-2 mt-4" data-swiper-id={uniqueId}>
+          {items.map((_, index) => (
+            <span
+              class={twMerge(
+                'pagination-dot w-2 h-2 rounded-full transition-all duration-300',
+                index === 0 ? 'bg-primary scale-125' : 'bg-gray-300 dark:bg-gray-600'
+              )}
+              data-index={index}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop grid - hidden on mobile */}
+      <div
+        class={twMerge(
+          `hidden sm:grid gap-8 gap-x-12 sm:gap-y-8 ${
+            columns === 4
+              ? 'lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2'
+              : columns === 3
+                ? 'lg:grid-cols-3 sm:grid-cols-2'
+                : columns === 2
+                  ? 'sm:grid-cols-2 '
+                  : ''
+          }`,
+          containerClass
+        )}
+      >
+        {items.map(({ title, description, icon, callToAction, classes: itemClasses = {}, href }) => {
+          const TileWrapper = href ? 'a' : 'div';
+          const tileProps = href ? { href } : {};
+
+          return (
+            <TileWrapper
+              {...tileProps}
+              class={twMerge(
+                'relative flex flex-col intersect-once intersect-quarter intersect-no-queue motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade',
+                href && 'cursor-pointer transition-all duration-200 hover:scale-105 hover:outline hover:outline-2 hover:outline-white',
+                panelClass,
+                itemClasses?.panel
+              )}
+            >
+              {(icon || defaultIcon) && (
+                <Icon name={icon || defaultIcon} class={twMerge('mb-2 w-10 h-10', defaultIconClass, itemClasses?.icon)} />
+              )}
+              <div class={twMerge('text-xl font-bold', titleClass, itemClasses?.title)}>{title}</div>
+              {description && (
+                <p class={twMerge('text-muted mt-2', descriptionClass, itemClasses?.description)} set:html={description} />
+              )}
+              {callToAction && (
+                <div class="mt-2">
+                  <Button {...callToAction} />
+                </div>
+              )}
+            </TileWrapper>
+          );
+        })}
+      </div>
     </div>
   )
 }
+
+<style>
+  /* Hide scrollbar for mobile swipe container */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+
+<script>
+  function initSwipeCarousels() {
+    const containers = document.querySelectorAll('.mobile-swipe-container');
+
+    containers.forEach((container) => {
+      const id = container.id;
+      const dotsContainer = document.querySelector(`[data-swiper-id="${id}"]`);
+      if (!dotsContainer) return;
+
+      const dots = dotsContainer.querySelectorAll('.pagination-dot');
+      const cards = container.querySelectorAll('.mobile-swipe-card');
+
+      if (cards.length === 0) return;
+
+      const updateDots = () => {
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
+
+        let activeIndex = 0;
+        let minDistance = Infinity;
+
+        cards.forEach((card, index) => {
+          const cardRect = card.getBoundingClientRect();
+          const cardCenter = cardRect.left + cardRect.width / 2;
+          const distance = Math.abs(containerCenter - cardCenter);
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            activeIndex = index;
+          }
+        });
+
+        dots.forEach((dot, index) => {
+          if (index === activeIndex) {
+            dot.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+            dot.classList.add('bg-primary', 'scale-125');
+          } else {
+            dot.classList.remove('bg-primary', 'scale-125');
+            dot.classList.add('bg-gray-300', 'dark:bg-gray-600');
+          }
+        });
+      };
+
+      container.addEventListener('scroll', updateDots, { passive: true });
+
+      // Initial update
+      updateDots();
+    });
+  }
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', initSwipeCarousels);
+
+  // Re-initialize on Astro page transitions (if using View Transitions)
+  document.addEventListener('astro:page-load', initSwipeCarousels);
+</script>

@@ -18,6 +18,8 @@ const {
   classes = {},
   bg = await Astro.slots.render('bg'),
 } = Astro.props;
+
+const uniqueId = `steps2-swiper-${Math.random().toString(36).substr(2, 9)}`;
 ---
 
 <WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-6xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
@@ -48,7 +50,45 @@ const {
       </div>
     </div>
     <div class="w-full lg:w-1/2 px-0">
-      <ul class="space-y-10">
+      {/* Mobile swipe carousel - visible only below sm breakpoint */}
+      <div class="sm:hidden">
+        <div
+          id={uniqueId}
+          class="steps2-swipe-container flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-4 pb-4 -mx-4 px-4"
+        >
+          {
+            items && items.length
+              ? items.map(({ title: title2, description, icon }, index) => (
+                  <div class="steps2-swipe-card flex-shrink-0 w-full snap-center p-6">
+                    <div class="flex flex-col items-center text-center">
+                      <span class="flex w-16 h-16 mb-4 items-center justify-center text-2xl font-bold rounded-full bg-blue-100 text-primary">
+                        {icon ? <Icon name={icon} class="w-6 h-6 icon-bold" /> : index + 1}
+                      </span>
+                      <h3 class="mb-4 text-xl font-semibold font-heading" set:html={title2} />
+                      <p class="text-muted dark:text-gray-400" set:html={description} />
+                    </div>
+                  </div>
+                ))
+              : ''
+          }
+        </div>
+        {/* Pagination dots */}
+        <div class="steps2-pagination-dots flex justify-center gap-2 mt-4" data-swiper-id={uniqueId}>
+          {
+            items && items.length
+              ? items.map((_, index) => (
+                  <span
+                    class={`steps2-pagination-dot w-2 h-2 rounded-full transition-all duration-300 ${index === 0 ? 'bg-primary scale-125' : 'bg-gray-300 dark:bg-gray-600'}`}
+                    data-index={index}
+                  />
+                ))
+              : ''
+          }
+        </div>
+      </div>
+
+      {/* Desktop layout - hidden below sm breakpoint */}
+      <ul class="hidden sm:block space-y-10">
         {
           items && items.length
             ? items.map(({ title: title2, description, icon }, index) => (
@@ -70,3 +110,71 @@ const {
     </div>
   </div>
 </WidgetWrapper>
+
+<style>
+  /* Hide scrollbar for mobile swipe container */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+
+<script>
+  function initSteps2Carousels() {
+    const containers = document.querySelectorAll('.steps2-swipe-container');
+
+    containers.forEach((container) => {
+      const id = container.id;
+      const dotsContainer = document.querySelector(`[data-swiper-id="${id}"]`);
+      if (!dotsContainer) return;
+
+      const dots = dotsContainer.querySelectorAll('.steps2-pagination-dot');
+      const cards = container.querySelectorAll('.steps2-swipe-card');
+
+      if (cards.length === 0) return;
+
+      const updateDots = () => {
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
+
+        let activeIndex = 0;
+        let minDistance = Infinity;
+
+        cards.forEach((card, index) => {
+          const cardRect = card.getBoundingClientRect();
+          const cardCenter = cardRect.left + cardRect.width / 2;
+          const distance = Math.abs(containerCenter - cardCenter);
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            activeIndex = index;
+          }
+        });
+
+        dots.forEach((dot, index) => {
+          if (index === activeIndex) {
+            dot.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+            dot.classList.add('bg-primary', 'scale-125');
+          } else {
+            dot.classList.remove('bg-primary', 'scale-125');
+            dot.classList.add('bg-gray-300', 'dark:bg-gray-600');
+          }
+        });
+      };
+
+      container.addEventListener('scroll', updateDots, { passive: true });
+
+      // Initial update
+      updateDots();
+    });
+  }
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', initSteps2Carousels);
+
+  // Re-initialize on Astro page transitions (if using View Transitions)
+  document.addEventListener('astro:page-load', initSteps2Carousels);
+</script>

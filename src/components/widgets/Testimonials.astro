@@ -17,12 +17,79 @@ const {
   classes = {},
   bg = await Astro.slots.render('bg'),
 } = Astro.props;
+
+const uniqueId = `testimonials-swiper-${Math.random().toString(36).substr(2, 9)}`;
 ---
 
 <WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-6xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
   <Headline title={title} subtitle={subtitle} tagline={tagline} />
 
-  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  {/* Mobile swipe carousel - visible only below sm breakpoint */}
+  <div class="sm:hidden">
+    <div
+      id={uniqueId}
+      class="testimonials-swipe-container flex overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4"
+    >
+      {
+        testimonials &&
+          testimonials.map(({ title, testimonial, name, job, image }) => (
+            <div class="testimonials-swipe-card flex-shrink-0 w-full snap-center px-1">
+              <div class="flex flex-col p-4 rounded-md shadow-xl dark:shadow-none dark:border dark:border-slate-600 h-full">
+                {title && <h2 class="text-lg font-medium leading-6 pb-4">{title}</h2>}
+                {testimonial && (
+                  <blockquote class="flex-auto">
+                    <p class="text-muted">" {testimonial} "</p>
+                  </blockquote>
+                )}
+
+                <hr class="border-slate-200 dark:border-slate-600 my-4" />
+
+                <div class="flex items-center">
+                  {image && (
+                    <div class="h-10 w-10 rounded-full border border-slate-200 dark:border-slate-600">
+                      {typeof image === 'string' ? (
+                        <Fragment set:html={image} />
+                      ) : (
+                        <Image
+                          class="h-10 w-10 rounded-full border border-slate-200 dark:border-slate-600 min-w-full min-h-full"
+                          width={40}
+                          height={40}
+                          widths={[400, 768]}
+                          layout="fixed"
+                          {...image}
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  <div class="grow ml-3 rtl:ml-0 rtl:mr-3">
+                    {name && <p class="text-base font-semibold">{name}</p>}
+                    {job && <p class="text-xs text-muted">{job}</p>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+      }
+    </div>
+    {/* Pagination dots - non-clickable visual indicators */}
+    {testimonials && testimonials.length > 1 && (
+      <div class="testimonials-pagination-dots flex justify-center gap-2 mt-4" data-testimonials-swiper-id={uniqueId}>
+        {testimonials.map((_, index) => (
+          <span
+            class:list={[
+              'testimonials-pagination-dot w-2 h-2 rounded-full transition-all duration-300',
+              index === 0 ? 'bg-primary scale-125' : 'bg-gray-300 dark:bg-gray-600'
+            ]}
+            data-index={index}
+          />
+        ))}
+      </div>
+    )}
+  </div>
+
+  {/* Desktop grid - hidden on mobile, visible from sm breakpoint */}
+  <div class="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {
       testimonials &&
         testimonials.map(({ title, testimonial, name, job, image }) => (
@@ -73,3 +140,71 @@ const {
     )
   }
 </WidgetWrapper>
+
+<style>
+  /* Hide scrollbar for mobile swipe container */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+
+<script>
+  function initTestimonialsSwipeCarousels() {
+    const containers = document.querySelectorAll('.testimonials-swipe-container');
+
+    containers.forEach((container) => {
+      const id = container.id;
+      const dotsContainer = document.querySelector(`[data-testimonials-swiper-id="${id}"]`);
+      if (!dotsContainer) return;
+
+      const dots = dotsContainer.querySelectorAll('.testimonials-pagination-dot');
+      const cards = container.querySelectorAll('.testimonials-swipe-card');
+
+      if (cards.length === 0) return;
+
+      const updateDots = () => {
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
+
+        let activeIndex = 0;
+        let minDistance = Infinity;
+
+        cards.forEach((card, index) => {
+          const cardRect = card.getBoundingClientRect();
+          const cardCenter = cardRect.left + cardRect.width / 2;
+          const distance = Math.abs(containerCenter - cardCenter);
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            activeIndex = index;
+          }
+        });
+
+        dots.forEach((dot, index) => {
+          if (index === activeIndex) {
+            dot.classList.remove('bg-gray-300', 'dark:bg-gray-600');
+            dot.classList.add('bg-primary', 'scale-125');
+          } else {
+            dot.classList.remove('bg-primary', 'scale-125');
+            dot.classList.add('bg-gray-300', 'dark:bg-gray-600');
+          }
+        });
+      };
+
+      container.addEventListener('scroll', updateDots, { passive: true });
+
+      // Initial update
+      updateDots();
+    });
+  }
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', initTestimonialsSwipeCarousels);
+
+  // Re-initialize on Astro page transitions (if using View Transitions)
+  document.addEventListener('astro:page-load', initTestimonialsSwipeCarousels);
+</script>
