@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "astro-docs": {
+      "type": "http",
+      "url": "https://mcp.docs.astro.build/mcp"
+    },
+    "tailwindcss-mcp-server": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "tailwindcss-mcp-server"
+      ],
+      "env": {}
+    },
+    "pexels": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "pexels-mcp-server"
+      ],
+      "env": {
+        "PEXELS_API_KEY": "nMRZvURQEwun9lgNZBjipKfF403TvgFzz3lyQjfXFqiEfc3EgrHzxjkD"
+      }
+    }
+  }
+}
