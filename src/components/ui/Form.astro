@@ -236,6 +236,8 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
         const message = form.querySelector('#textarea')?.value || '';
         const turnstileToken = form.querySelector('[name="cf-turnstile-response"]')?.value || '';
 
+        console.log('Form data:', { name, email, message: message.substring(0, 20) + '...', turnstileToken: turnstileToken ? `${turnstileToken.substring(0, 20)}...` : 'EMPTY' });
+
         // Helper to show visible error on the form
         function showFormError(message) {
           // Remove any old error
@@ -273,7 +275,17 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
               }),
             });
 
-            const result = await response.json();
+            // Check content type and parse accordingly (Worker returns plain text for some errors)
+            const contentType = response.headers.get('content-type');
+            let result;
+
+            if (contentType && contentType.includes('application/json')) {
+              result = await response.json();
+            } else {
+              // Plain text response (e.g., "Spam check failed")
+              const text = await response.text();
+              result = { error: text, success: false };
+            }
 
             if (response.ok && result.success) {
               console.log('Form submitted successfully:', result);
@@ -294,15 +306,30 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
                 error: result.error || 'Unknown server error',
                 fullResponse: result,
               });
-              showFormError('Sorry, something went wrong. Please try again later or email us directly at hello@rebirthwebdesign.com.au');
+
+              // Show specific error message based on status
+              if (response.status === 403) {
+                showFormError('Spam check failed. Please refresh and try again.');
+              } else if (response.status === 500) {
+                showFormError(result.error || 'Server error. Please try again later or email us directly at hello@rebirthwebdesign.com.au');
+              } else {
+                showFormError('Sorry, something went wrong. Please try again later or email us directly at hello@rebirthwebdesign.com.au');
+              }
             }
           } catch (networkError) {
             console.error('Network/fetch error during form submission:', {
               message: networkError.message,
               name: networkError.name,
               stack: networkError.stack,
+              type: networkError.constructor.name,
             });
-            showFormError('Connection failed. Check your internet and try again.');
+            // Show more helpful error in development
+            const isDev = window.location.hostname === 'localhost';
+            if (isDev) {
+              showFormError(`Error: ${networkError.message}. Check browser console for details.`);
+            } else {
+              showFormError('Connection failed. Check your internet and try again.');
+            }
           }
 
           // Reset button state

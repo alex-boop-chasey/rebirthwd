@@ -23,6 +23,10 @@
       "env": {
         "PEXELS_API_KEY": "nMRZvURQEwun9lgNZBjipKfF403TvgFzz3lyQjfXFqiEfc3EgrHzxjkD"
       }
+    },
+    "astro": {
+      "type": "sse",
+      "url": "http://localhost:4321/__mcp/sse"
     }
   }
 }
