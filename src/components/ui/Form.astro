@@ -231,8 +231,10 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
         }
 
         // Get form data
-        const formData = new FormData(form);
-        const formBody = new URLSearchParams(formData);
+        const name = form.querySelector('#name')?.value || '';
+        const email = form.querySelector('#email')?.value || '';
+        const message = form.querySelector('#textarea')?.value || '';
+        const turnstileToken = form.querySelector('[name="cf-turnstile-response"]')?.value || '';
 
         // Helper to show visible error on the form
         function showFormError(message) {
@@ -254,16 +256,21 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
 
         let submitted = false;
 
-        // Submit to API with robust error handling
+        // Submit to Cloudflare Worker with robust error handling
         (async function() {
           try {
-            console.log('Submitting form to /api/send-email');
-            const response = await fetch('/api/send-email', {
+            console.log('Submitting form to Cloudflare Worker');
+            const response = await fetch('https://rebirth-form-handler.alexharris0079.workers.dev/', {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Type': 'application/json',
               },
-              body: formBody,
+              body: JSON.stringify({
+                name,
+                email,
+                message,
+                turnstileToken
+              }),
             });
 
             const result = await response.json();
