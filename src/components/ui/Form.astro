@@ -7,7 +7,6 @@ const { inputs, textarea, disclaimer, button = 'Contact us', description = '' } 
 const turnstileEnabled = TURNSTILE?.enabled;
 const turnstileSiteKey = TURNSTILE?.siteKey;
 
-console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
 ---
 
 <form id="contact-form" method="post" action="" novalidate data-astro-reload>
@@ -236,8 +235,6 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
         const message = form.querySelector('#textarea')?.value || '';
         const turnstileToken = form.querySelector('[name="cf-turnstile-response"]')?.value || '';
 
-        console.log('Form data:', { name, email, message: message.substring(0, 20) + '...', turnstileToken: turnstileToken ? `${turnstileToken.substring(0, 20)}...` : 'EMPTY' });
-
         // Helper to show visible error on the form
         function showFormError(message) {
           // Remove any old error
@@ -258,37 +255,29 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
 
         let submitted = false;
 
-        // Submit to Cloudflare Worker with robust error handling
+        // Submit to Cloudflare Worker using FormData
         (async function() {
           try {
             console.log('Submitting form to Cloudflare Worker');
+
+            // Build FormData
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('email', email);
+            formData.append('message', message);
+            formData.append('cf-turnstile-response', turnstileToken);
+
             const response = await fetch('https://rebirth-form-handler.alexharris0079.workers.dev/', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                name,
-                email,
-                message,
-                turnstileToken
-              }),
+              body: formData
             });
 
-            // Check content type and parse accordingly (Worker returns plain text for some errors)
-            const contentType = response.headers.get('content-type');
-            let result;
+            // Worker returns plain text responses
+            const responseText = await response.text();
+            console.log('Worker response:', response.status, responseText);
 
-            if (contentType && contentType.includes('application/json')) {
-              result = await response.json();
-            } else {
-              // Plain text response (e.g., "Spam check failed")
-              const text = await response.text();
-              result = { error: text, success: false };
-            }
-
-            if (response.ok && result.success) {
-              console.log('Form submitted successfully:', result);
+            if (response.ok) {
+              console.log('Form submitted successfully');
 
               // Success - show modal and reset form
               if (window.showSuccessModal) {
@@ -303,25 +292,22 @@ console.log('Turnstile config:', { turnstileEnabled, turnstileSiteKey });
               console.error('Form submission failed:', {
                 status: response.status,
                 statusText: response.statusText,
-                error: result.error || 'Unknown server error',
-                fullResponse: result,
+                responseText: responseText,
               });
 
               // Show specific error message based on status
               if (response.status === 403) {
                 showFormError('Spam check failed. Please refresh and try again.');
               } else if (response.status === 500) {
-                showFormError(result.error || 'Server error. Please try again later or email us directly at hello@rebirthwebdesign.com.au');
+                showFormError('Server error. Please try again later or email us directly at hello@rebirthwebdesign.com.au');
               } else {
-                showFormError('Sorry, something went wrong. Please try again later or email us directly at hello@rebirthwebdesign.com.au');
+                showFormError(responseText || 'Sorry, something went wrong. Please try again.');
               }
             }
           } catch (networkError) {
             console.error('Network/fetch error during form submission:', {
               message: networkError.message,
               name: networkError.name,
-              stack: networkError.stack,
-              type: networkError.constructor.name,
             });
             // Show more helpful error in development
             const isDev = window.location.hostname === 'localhost';
