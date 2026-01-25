@@ -296,7 +296,11 @@ const turnstileSiteKey = TURNSTILE?.siteKey;
               });
 
               // Show specific error message based on status
-              if (response.status === 403) {
+              // In dev mode, show actual error for debugging
+              const isDev = window.location.hostname === 'localhost';
+              if (isDev) {
+                showFormError(`Error ${response.status}: ${responseText}`);
+              } else if (response.status === 403) {
                 showFormError('Spam check failed. Please refresh and try again.');
               } else if (response.status === 500) {
                 showFormError('Server error. Please try again later or email us directly at hello@rebirthwebdesign.com.au');
