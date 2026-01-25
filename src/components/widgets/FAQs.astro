@@ -1,7 +1,7 @@
 ---
 import Headline from '~/components/ui/Headline.astro';
-import ItemGrid from '~/components/ui/ItemGrid.astro';
 import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import { Icon } from 'astro-icon/components';
 import type { Faqs as Props } from '~/types';
 
 const {
@@ -20,14 +20,84 @@ const {
 
 <WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-7xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
   <Headline title={title} subtitle={subtitle} tagline={tagline} />
-  <ItemGrid
-    items={items}
-    columns={columns}
-    defaultIcon="tabler:chevron-right"
-    classes={{
-      container: `${columns === 1 ? 'max-w-4xl' : ''} gap-y-8 md:gap-y-12`,
-      panel: 'max-w-none',
-      icon: 'flex-shrink-0 mt-1 w-6 h-6 text-primary',
-    }}
-  />
+  <div
+    class:list={[
+      'grid mx-auto gap-8 md:gap-y-12',
+      columns === 4 ? 'lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2' :
+      columns === 3 ? 'lg:grid-cols-3 sm:grid-cols-2' :
+      columns === 2 ? 'sm:grid-cols-2' : '',
+      columns === 1 ? 'max-w-4xl' : '',
+    ]}
+  >
+    {items.map(({ title: itemTitle, description }) => (
+      <div class="faq-item intersect-once motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade">
+        <div class="flex flex-row max-w-none">
+          <div class="faq-trigger flex cursor-pointer md:cursor-default" role="button" tabindex="0">
+            <div class="flex justify-center">
+              <Icon
+                name="tabler:chevron-right"
+                class="faq-icon w-7 h-7 mr-2 rtl:mr-0 rtl:ml-2 flex-shrink-0 mt-1 w-6 h-6 text-primary transition-transform duration-300 md:rotate-0"
+              />
+            </div>
+            {itemTitle && <h3 class="text-xl font-bold mt-0.5">{itemTitle}</h3>}
+          </div>
+        </div>
+        {description && (
+          <div class="faq-answer-wrapper grid grid-rows-[0fr] md:grid-rows-[1fr] transition-[grid-template-rows] duration-300 ease-out">
+            <div class="overflow-hidden">
+              <p
+                class="faq-answer mt-3 ml-9 text-muted"
+                set:html={description}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
 </WidgetWrapper>
+
+<script>
+  function initFaqAccordion() {
+    const faqItems = document.querySelectorAll('.faq-item');
+
+    faqItems.forEach((item) => {
+      const trigger = item.querySelector('.faq-trigger');
+      const answerWrapper = item.querySelector('.faq-answer-wrapper');
+      const icon = item.querySelector('.faq-icon');
+
+      if (trigger && answerWrapper && icon) {
+        const toggleFaq = () => {
+          // Only toggle on mobile (less than 768px)
+          if (window.innerWidth < 768) {
+            const isOpen = answerWrapper.classList.contains('grid-rows-[1fr]');
+
+            if (isOpen) {
+              answerWrapper.classList.remove('grid-rows-[1fr]');
+              answerWrapper.classList.add('grid-rows-[0fr]');
+              icon.classList.remove('rotate-90');
+            } else {
+              answerWrapper.classList.remove('grid-rows-[0fr]');
+              answerWrapper.classList.add('grid-rows-[1fr]');
+              icon.classList.add('rotate-90');
+            }
+          }
+        };
+
+        trigger.addEventListener('click', toggleFaq);
+        trigger.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleFaq();
+          }
+        });
+      }
+    });
+  }
+
+  // Initialize on page load
+  initFaqAccordion();
+
+  // Re-initialize on Astro page transitions
+  document.addEventListener('astro:after-swap', initFaqAccordion);
+</script>

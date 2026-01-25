@@ -15,57 +15,38 @@ const {
   classes = {},
   bg = await Astro.slots.render('bg'),
 } = Astro.props;
-
-const uniqueId = `stats-swiper-${Math.random().toString(36).substr(2, 9)}`;
 ---
 
 <WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-6xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
   <Headline title={title} subtitle={subtitle} tagline={tagline} />
 
-  {/* Mobile swipe carousel - visible only below sm breakpoint */}
-  <div class="sm:hidden">
-    <div
-      id={uniqueId}
-      class="stats-swipe-container flex overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4"
-    >
-      {
-        stats &&
-          stats.map(({ amount, title, icon }) => (
-            <div class="stats-swipe-card flex-shrink-0 w-full snap-center p-4 text-center">
-              {icon && (
-                <div class="flex items-center justify-center mx-auto mb-4 text-primary">
-                  <Icon name={icon} class="w-10 h-10" />
-                </div>
-              )}
-              {amount && (
-                <div class="font-heading text-primary text-[2.6rem] font-bold dark:text-white mb-5">
-                  {amount}
-                </div>
-              )}
-              {title && (
-                <div class="text-sm font-medium uppercase tracking-widest text-gray-800 dark:text-slate-400">
-                  {title}
-                </div>
-              )}
-            </div>
-          ))
-      }
-    </div>
-    {/* Pagination dots - non-clickable visual indicators */}
-    <div class="stats-pagination-dots flex justify-center gap-2 mt-4" data-stats-swiper-id={uniqueId}>
-      {
-        stats &&
-          stats.map((_, index) => (
-            <span
-              class={`stats-pagination-dot w-2 h-2 rounded-full transition-all duration-300 ${index === 0 ? 'bg-primary scale-125' : 'bg-gray-300 dark:bg-gray-600'}`}
-              data-index={index}
-            />
-          ))
-      }
-    </div>
+  {/* Mobile 2x2 grid - visible only below sm breakpoint */}
+  <div class="grid grid-cols-2 gap-4 sm:hidden">
+    {
+      stats &&
+        stats.map(({ amount, title, icon }) => (
+          <div class="p-4 text-center">
+            {icon && (
+              <div class="flex items-center justify-center mx-auto mb-3 text-primary">
+                <Icon name={icon} class="w-8 h-8" />
+              </div>
+            )}
+            {amount && (
+              <div class="font-heading text-primary text-2xl font-bold dark:text-white mb-2">
+                {amount}
+              </div>
+            )}
+            {title && (
+              <div class="text-xs font-medium uppercase tracking-widest text-gray-800 dark:text-slate-400">
+                {title}
+              </div>
+            )}
+          </div>
+        ))
+    }
   </div>
 
-  {/* Desktop layout - hidden on mobile, unchanged from original */}
+  {/* Desktop layout - hidden on mobile */}
   <div class="hidden sm:flex flex-wrap justify-center -m-4 text-center">
     {
       stats &&
@@ -92,71 +73,3 @@ const uniqueId = `stats-swiper-${Math.random().toString(36).substr(2, 9)}`;
     }
   </div>
 </WidgetWrapper>
-
-<style>
-  /* Hide scrollbar for mobile swipe container */
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-</style>
-
-<script>
-  function initStatsSwipeCarousels() {
-    const containers = document.querySelectorAll('.stats-swipe-container');
-
-    containers.forEach((container) => {
-      const id = container.id;
-      const dotsContainer = document.querySelector(`[data-stats-swiper-id="${id}"]`);
-      if (!dotsContainer) return;
-
-      const dots = dotsContainer.querySelectorAll('.stats-pagination-dot');
-      const cards = container.querySelectorAll('.stats-swipe-card');
-
-      if (cards.length === 0) return;
-
-      const updateDots = () => {
-        const containerRect = container.getBoundingClientRect();
-        const containerCenter = containerRect.left + containerRect.width / 2;
-
-        let activeIndex = 0;
-        let minDistance = Infinity;
-
-        cards.forEach((card, index) => {
-          const cardRect = card.getBoundingClientRect();
-          const cardCenter = cardRect.left + cardRect.width / 2;
-          const distance = Math.abs(containerCenter - cardCenter);
-
-          if (distance < minDistance) {
-            minDistance = distance;
-            activeIndex = index;
-          }
-        });
-
-        dots.forEach((dot, index) => {
-          if (index === activeIndex) {
-            dot.classList.remove('bg-gray-300', 'dark:bg-gray-600');
-            dot.classList.add('bg-primary', 'scale-125');
-          } else {
-            dot.classList.remove('bg-primary', 'scale-125');
-            dot.classList.add('bg-gray-300', 'dark:bg-gray-600');
-          }
-        });
-      };
-
-      container.addEventListener('scroll', updateDots, { passive: true });
-
-      // Initial update
-      updateDots();
-    });
-  }
-
-  // Initialize on page load
-  document.addEventListener('DOMContentLoaded', initStatsSwipeCarousels);
-
-  // Re-initialize on Astro page transitions (if using View Transitions)
-  document.addEventListener('astro:page-load', initStatsSwipeCarousels);
-</script>
